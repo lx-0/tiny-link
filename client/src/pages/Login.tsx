@@ -31,9 +31,12 @@ export default function Login() {
   
   // Helper to navigate safely to prevent href errors
   const navigate = (path: string) => {
-    // Use the centralized safe navigation utility
+    // Import safeNavigate to handle all URL edge cases properly
     import('@/lib/utils').then(({ safeNavigate }) => {
-      safeNavigate(path);
+      // Use safeNavigate with explicit path cleaning to prevent any href errors
+      const cleanPath = path.replace(/^\/+/, '');
+      const normalizedPath = '/' + cleanPath;
+      safeNavigate(normalizedPath);
     });
   };
 

@@ -35,10 +35,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [_, setLocation] = useLocation();
   
   // Helper to navigate without causing location format issues
-  const navigate = (path: string) => {
+  const navigate = (path: string, options = {}) => {
     // Import and use our safe navigation utility
     import('@/lib/utils').then(({ safeNavigate }) => {
-      safeNavigate(path);
+      // Explicitly normalize the path to prevent invalid href issues
+      const cleanPath = path.replace(/^\/+/, '');
+      const normalizedPath = '/' + cleanPath;
+      safeNavigate(normalizedPath, options);
     });
   };
 
@@ -118,10 +121,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       // After a small delay to let the logout complete fully
       setTimeout(() => {
-        // Use our safe navigation utility to ensure proper URL format
-        import('@/lib/utils').then(({ safeNavigate }) => {
-          safeNavigate('/login', { forceReload: true });
-        });
+        // Use our navigate helper which correctly normalizes paths
+        navigate('/login', { forceReload: true });
       }, 100);
     } catch (error) {
       toast({
