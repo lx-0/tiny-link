@@ -15,30 +15,10 @@ export default function AuthGuard({
   const [location, setLocation] = useLocation();
   const { user, isLoading, isAuthenticated } = useAuth();
   
-  // Helper to navigate without causing location format issues
+  // Simple navigation helper using safeNavigate
   const navigate = (path: string) => {
-    // Import and use our safe navigation utility with domain stripping
     import('@/lib/utils').then(({ safeNavigate }) => {
-      // Strip off any domain/protocol if present
-      let cleanPath = path;
-      
-      // Handle URLs with domain/protocol
-      if (path.includes('://') || path.includes('.replit.dev/')) {
-        try {
-          // Parse as URL and extract just the pathname
-          const url = new URL(path.includes('://') ? path : `https://${path}`);
-          cleanPath = url.pathname;
-        } catch (e) {
-          // If URL parsing fails, try regex extraction
-          const pathMatch = path.match(/\.replit\.dev(\/[^?#]*)/);
-          if (pathMatch && pathMatch[1]) {
-            cleanPath = pathMatch[1];
-          }
-        }
-      }
-      
-      // Normalize path and navigate
-      safeNavigate(cleanPath);
+      safeNavigate(path);
     });
   };
   

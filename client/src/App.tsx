@@ -15,9 +15,8 @@ import AuthGuard from "@/components/AuthGuard";
 // Simple layout component
 function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
-  const normalizedLocation = '/' + location.replace(/^\/+/, '');
-  const isAuthPage = normalizedLocation === '/login' || normalizedLocation === '/register';
-  const isRedirectPage = normalizedLocation === '/not-found' || normalizedLocation.startsWith('/r/');
+  const isAuthPage = location === '/login' || location === '/register';
+  const isRedirectPage = location === '/not-found' || location.startsWith('/r/');
   
   // Don't show navbar on auth pages or redirect pages
   return (

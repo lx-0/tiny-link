@@ -30,11 +30,11 @@ export default function Register() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   
-  // Helper to navigate without causing location format issues
+  // Simple navigation helper
   const navigate = (path: string) => {
-    // Ensure path starts with a single slash
-    const normalizedPath = path.replace(/^\/*/, '/');
-    setLocation(normalizedPath);
+    import('@/lib/utils').then(({ safeNavigate }) => {
+      safeNavigate(path);
+    });
   };
 
   // Initialize form
