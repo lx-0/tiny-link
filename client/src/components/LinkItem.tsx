@@ -20,7 +20,9 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
   
   // Calculate base URL for shortening (using current domain)
   const baseUrl = window.location.origin;
-  const shortUrl = `${baseUrl}/r/${url.shortCode}`;
+  // Use a relative URL format to avoid issues with Replit URLs
+  const shortUrl = `/r/${url.shortCode}`;
+  const fullShortUrl = `${baseUrl}${shortUrl}`;
   
   // Format created date
   const formattedDate = url.createdAt 
@@ -28,7 +30,7 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
     : '';
   
   const handleCopy = async () => {
-    const success = await copy(shortUrl);
+    const success = await copy(fullShortUrl);
     if (success) {
       toast({
         title: 'URL copied to clipboard',
@@ -78,7 +80,7 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
                 <div className="text-gray-900 truncate">
                   Shortened URL: 
                   <a href={shortUrl} target="_blank" rel="noopener noreferrer" className="ml-1 font-medium text-primary hover:text-blue-600 truncate">
-                    {shortUrl}
+                    {fullShortUrl}
                   </a>
                 </div>
                 <button 

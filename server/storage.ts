@@ -118,12 +118,18 @@ export class MemStorage implements IStorage {
   async createUrl(insertUrl: InsertUrl): Promise<Url> {
     const id = this.urlIdCounter++;
     const now = new Date();
+    
+    // Extract and ensure isActive is treated as a boolean
+    const { isActive = true, ...restInsertData } = insertUrl;
+    
     const url: Url = { 
-      ...insertUrl, 
+      ...restInsertData,
+      isActive, // Ensure this is a boolean 
       id, 
       createdAt: now, 
-      clicks: 0 
+      clicks: 0
     };
+    
     this.urls.set(id, url);
     return url;
   }
@@ -133,10 +139,14 @@ export class MemStorage implements IStorage {
     if (!existingUrl) {
       return undefined;
     }
+    
+    // Extract isActive and ensure it's a boolean (or use existing value)
+    const { isActive = existingUrl.isActive, ...restUpdateData } = updateData;
 
     const updatedUrl: Url = {
       ...existingUrl,
-      ...updateData,
+      ...restUpdateData,
+      isActive, // Ensure this is a boolean
     };
 
     this.urls.set(id, updatedUrl);
