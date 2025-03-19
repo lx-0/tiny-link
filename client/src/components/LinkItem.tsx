@@ -20,9 +20,8 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
   
   // Calculate base URL for shortening (using current domain)
   const baseUrl = window.location.origin;
-  // Use a relative URL format to avoid issues with Replit URLs
-  const shortUrl = `/r/${url.shortCode}`;
-  const fullShortUrl = `${baseUrl}${shortUrl}`;
+  // Use a format that works on Replit
+  const fullShortUrl = `${baseUrl}/r/${url.shortCode}`;
   
   // Format created date
   const formattedDate = url.createdAt 

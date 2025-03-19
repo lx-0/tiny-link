@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'wouter';
+import { useLocation, useParams } from 'wouter';
 import { Card, CardContent } from '@/components/ui/card';
 import { AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,15 +8,22 @@ import Navbar from '@/components/Navbar';
 export default function RedirectPage() {
   const [location, navigate] = useLocation();
   const [shortCode, setShortCode] = useState<string>('');
+  const params = useParams();
   
   useEffect(() => {
-    // Extract short code from query params
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
+    // First try to get shortcode from route params (for /r/:shortCode routes)
+    if (params && params.shortCode) {
+      setShortCode(params.shortCode);
+      return;
+    }
+    
+    // Fallback to query params (for /not-found?code=xyz routes)
+    const queryParams = new URLSearchParams(window.location.search);
+    const code = queryParams.get('code');
     if (code) {
       setShortCode(code);
     }
-  }, []);
+  }, [params]);
   
   return (
     <>
