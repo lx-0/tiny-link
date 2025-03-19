@@ -59,11 +59,22 @@ export async function signUp(email: string, password: string, username: string) 
 }
 
 export async function signOut() {
-  const { error } = await supabase.auth.signOut();
-  if (error) throw error;
-  
-  // Clear any route-specific data from localStorage that might cause issues
-  localStorage.removeItem('redirectUrl');
+  // First, clear any local storage items that might interfere with navigation
+  try {
+    localStorage.removeItem('redirectUrl');
+    localStorage.removeItem('supabase.auth.token');
+    
+    // Then sign out from Supabase
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    
+    // For a clean state, we will clear session cookies and storage
+    // This helps avoid stale auth state causing URL formatting issues
+    sessionStorage.clear();
+  } catch (error) {
+    console.error("Error during sign out:", error);
+    throw error;
+  }
 }
 
 export async function getCurrentUser() {

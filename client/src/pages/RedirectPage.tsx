@@ -12,9 +12,10 @@ export default function RedirectPage() {
   
   // Helper to navigate without causing location format issues
   const navigate = (path: string) => {
-    // Ensure path starts with a single slash
-    const normalizedPath = path.replace(/^\/*/, '/');
-    setLocation(normalizedPath);
+    // Import and use our safeNavigate utility
+    import('@/lib/utils').then(({ safeNavigate }) => {
+      safeNavigate(path);
+    });
   };
   
   useEffect(() => {

@@ -36,9 +36,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   // Helper to navigate without causing location format issues
   const navigate = (path: string) => {
-    // Ensure path starts with a single slash
-    const normalizedPath = path.replace(/^\/*/, '/');
-    setLocation(normalizedPath);
+    // Import and use our safe navigation utility
+    import('@/lib/utils').then(({ safeNavigate }) => {
+      safeNavigate(path);
+    });
   };
 
   // Function to check authentication status

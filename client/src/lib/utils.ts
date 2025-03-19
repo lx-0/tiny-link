@@ -27,6 +27,19 @@ export function safeNavigate(
     return;
   }
   
-  // For normal navigation within the app, we could use the setLocation function
-  // from wouter, but this is typically handled by the NormalizedLink component
+  // For normal in-app navigation, we need to use history API
+  // as wouter's useLocation hook can only be used inside components
+  try {
+    // Use the History API to update the URL without a full page reload
+    window.history.pushState({}, '', normalizedPath);
+    
+    // Dispatch a custom event that components can listen for to update their state
+    window.dispatchEvent(new CustomEvent('locationchange', { 
+      detail: { path: normalizedPath }
+    }));
+  } catch (error) {
+    // Fallback to basic navigation if the History API fails
+    console.error("Error during navigation:", error);
+    window.location.href = normalizedPath;
+  }
 }
