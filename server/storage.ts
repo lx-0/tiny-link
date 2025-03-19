@@ -262,9 +262,10 @@ async function setupInitialData(maxRetries = 3, retryDelay = 2000) {
 // Initialize the database storage
 const dbStorage = new DatabaseStorage();
 
+// Let's skip the initial data setup for now since we're creating tables differently
 // Setup initial data and export the storage
-setupInitialData()
-  .then(() => console.log('Initial data setup complete'))
-  .catch(err => console.error('Error during initial data setup:', err));
+// setupInitialData()
+//   .then(() => console.log('Initial data setup complete'))
+//   .catch(err => console.error('Error during initial data setup:', err));
 
 export const storage = dbStorage;
