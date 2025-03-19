@@ -42,8 +42,13 @@ export default function Dashboard() {
   // Check authentication
   useEffect(() => {
     const checkAuth = async () => {
-      const user = await getCurrentUser();
-      if (!user) {
+      try {
+        const user = await getCurrentUser();
+        if (!user) {
+          navigate('/login');
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
         navigate('/login');
       }
     };
@@ -56,16 +61,22 @@ export default function Dashboard() {
     data: urls = [], 
     isLoading: urlsLoading, 
     error: urlsError 
-  } = useQuery({
+  } = useQuery<Url[]>({
     queryKey: ['/api/urls'],
     staleTime: 10000,
   });
   
   // Fetch stats
+  interface Stats {
+    totalUrls: number;
+    totalClicks: number;
+    averageCTR: number;
+  }
+  
   const { 
     data: stats = { totalUrls: 0, totalClicks: 0, averageCTR: 0 }, 
     isLoading: statsLoading,
-  } = useQuery({
+  } = useQuery<Stats>({
     queryKey: ['/api/stats'],
     staleTime: 30000,
   });

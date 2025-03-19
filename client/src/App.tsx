@@ -11,11 +11,29 @@ import RedirectPage from "@/pages/RedirectPage";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Dashboard} />
+      <Route path="/app" component={Dashboard} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/not-found" component={RedirectPage} />
       <Route path="/r/:shortCode" component={RedirectPage} />
+      {/* Handle shortcodes directly at root path - but exclude paths that start with known routes */}
+      <Route path="/:shortCode">
+        {(params) => {
+          const { shortCode } = params;
+          // Skip routing to shortcode handler if it matches a known route
+          if (['app', 'login', 'register', 'not-found', 'r', 'api'].includes(shortCode)) {
+            return <NotFound />;
+          }
+          return <RedirectPage />;
+        }}
+      </Route>
+      <Route path="/">
+        {() => {
+          // Redirect root to /app
+          window.location.href = "/app";
+          return null;
+        }}
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );

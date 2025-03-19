@@ -18,18 +18,28 @@ export default function Navbar() {
   const { toast } = useToast();
 
   useEffect(() => {
+    let isMounted = true;
+    
     async function fetchUser() {
       try {
         const currentUser = await getCurrentUser();
-        setUser(currentUser);
+        if (isMounted) {
+          setUser(currentUser);
+        }
       } catch (error) {
         console.error('Failed to fetch user:', error);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     }
 
     fetchUser();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleSignOut = async () => {
@@ -59,7 +69,7 @@ export default function Navbar() {
                 <path d="M13.5 3H12H8C6.34315 3 5 4.34315 5 6V18C5 19.6569 6.34315 21 8 21H16C17.6569 21 19 19.6569 19 18V8.5M13.5 3L19 8.5M13.5 3V7C13.5 7.82843 14.1716 8.5 15 8.5H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M9 17H15M9 13H15M9 9H10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <Link href="/" className="ml-2 text-xl font-bold text-gray-900">
+              <Link href="/app" className="ml-2 text-xl font-bold text-gray-900">
                 TinyLink
               </Link>
             </div>

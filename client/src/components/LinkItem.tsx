@@ -19,8 +19,9 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
   const [location] = useLocation();
   
   // Calculate base URL for shortening (using current domain)
+  // No prefix needed anymore - URL is directly at the root
   const baseUrl = window.location.origin;
-  const shortUrl = `${baseUrl}/r/${url.shortCode}`;
+  const shortUrl = `${baseUrl}/${url.shortCode}`;
   
   // Format created date
   const formattedDate = url.createdAt 
@@ -54,7 +55,7 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
                   {url.originalUrl}
                 </div>
                 <div className="mt-1 flex items-center space-x-2">
-                  <Badge variant={url.isActive ? "success" : "secondary"}>
+                  <Badge variant={url.isActive ? "default" : "secondary"} className={url.isActive ? "bg-green-100 text-green-800" : ""}>
                     {url.isActive ? 'Active' : 'Inactive'}
                   </Badge>
                   <span className="text-sm text-gray-500">

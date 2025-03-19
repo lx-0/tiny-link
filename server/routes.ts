@@ -234,9 +234,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Redirect route - needs to be at the end to avoid conflicts with API routes
-  app.get("/r/:shortCode", async (req, res) => {
+  // API endpoint for redirect (used by React components)
+  app.get("/api/urls/redirect/:shortCode", async (req, res) => {
     const { shortCode } = req.params;
+    
+    try {
+      const url = await storage.getUrlByShortCode(shortCode);
+      
+      if (!url || !url.isActive) {
+        return res.status(404).json({ message: "URL not found or inactive" });
+      }
+      
+      // Increment click count
+      await storage.incrementUrlClicks(url.id);
+      
+      // Return the original URL for client-side redirection
+      res.json({ originalUrl: url.originalUrl });
+    } catch (error) {
+      res.status(500).json({ message: "Error processing redirect" });
+    }
+  });
+  
+  // Server-side redirect handler (fallback)
+  // Note: This needs to be after all API routes to avoid conflicts
+  app.get("/:shortCode", async (req, res) => {
+    const { shortCode } = req.params;
+    
+    // Skip known application routes - allow the client router to handle these
+    if (shortCode === 'app' || 
+        shortCode === 'login' || 
+        shortCode === 'register' || 
+        shortCode === 'not-found' || 
+        shortCode.startsWith('api') || 
+        shortCode.startsWith('r')) {
+      return res.status(404).json({ message: "Not found" });
+    }
     
     try {
       const url = await storage.getUrlByShortCode(shortCode);
