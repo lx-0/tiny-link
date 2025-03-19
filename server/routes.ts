@@ -255,20 +255,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Server-side redirect handler (fallback)
-  // Note: This needs to be after all API routes to avoid conflicts
-  app.get("/:shortCode", async (req, res) => {
+  // Server-side redirect handler for /r/:shortCode
+  app.get("/r/:shortCode", async (req, res) => {
     const { shortCode } = req.params;
-    
-    // Skip known application routes - allow the client router to handle these
-    if (shortCode === 'app' || 
-        shortCode === 'login' || 
-        shortCode === 'register' || 
-        shortCode === 'not-found' || 
-        shortCode.startsWith('api') || 
-        shortCode.startsWith('r')) {
-      return res.status(404).json({ message: "Not found" });
-    }
     
     try {
       const url = await storage.getUrlByShortCode(shortCode);
@@ -283,6 +272,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Redirect to the original URL
       res.redirect(url.originalUrl);
     } catch (error) {
+      console.error('Error processing redirect:', error);
       res.status(500).json({ message: "Error processing redirect" });
     }
   });

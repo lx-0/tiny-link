@@ -30,8 +30,8 @@ export default function RedirectPage() {
         
         if (response.ok) {
           const data = await response.json();
-          // Redirect to the original URL
-          window.location.href = data.originalUrl;
+          // Redirect to the original URL - use replace to avoid adding to browser history
+          window.location.replace(data.originalUrl);
         } else {
           setError(true);
           setIsLoading(false);
