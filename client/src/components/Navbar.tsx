@@ -1,6 +1,4 @@
-import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
-import { signOut, getCurrentUser } from '@/lib/supabase';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,57 +7,15 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, LogOut, Settings, User as UserIcon } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Navbar() {
   const [_, navigate] = useLocation();
-  const { toast } = useToast();
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, isLoading, logout } = useAuth();
   
-  // Fetch user on mount
-  useEffect(() => {
-    let mounted = true;
-    
-    async function loadUser() {
-      try {
-        const userData = await getCurrentUser();
-        if (mounted) {
-          setUser(userData);
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error('Error loading user:', error);
-        if (mounted) {
-          setIsLoading(false);
-        }
-      }
-    }
-    
-    loadUser();
-    
-    return () => {
-      mounted = false;
-    };
-  }, []);
-  
-  // Handle sign out
+  // Handle sign out using the context
   const handleSignOut = async () => {
-    try {
-      await signOut();
-      setUser(null);
-      toast({
-        title: 'Signed out successfully',
-        description: 'You have been signed out of your account.',
-      });
-      navigate('/login');
-    } catch (error) {
-      toast({
-        title: 'Error signing out',
-        description: 'Please try again later.',
-        variant: 'destructive',
-      });
-    }
+    await logout();
   };
 
   return (
