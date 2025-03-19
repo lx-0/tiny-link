@@ -5,17 +5,14 @@ import { exec } from 'child_process';
 console.log('Initializing database tables...');
 console.log('Running drizzle-kit push...');
 
-// Make sure DATABASE_URL is set to SUPABASE_DATABASE_URL
-if (process.env.SUPABASE_DATABASE_URL) {
-  process.env.DATABASE_URL = process.env.SUPABASE_DATABASE_URL;
-  console.log('Set DATABASE_URL to SUPABASE_DATABASE_URL');
-} else {
+// Check if SUPABASE_DATABASE_URL is set
+if (!process.env.SUPABASE_DATABASE_URL) {
   console.error('SUPABASE_DATABASE_URL is not set. Please check your environment variables.');
   process.exit(1);
 }
 
-// Execute the drizzle-kit push command to create database tables
-exec('npx drizzle-kit push', (error, stdout, stderr) => {
+// Execute the drizzle-kit push command with the correct database URL
+exec('DATABASE_URL="$SUPABASE_DATABASE_URL" npx drizzle-kit push', (error, stdout, stderr) => {
   if (error) {
     console.error(`Error during database initialization: ${error.message}`);
     return;

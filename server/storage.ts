@@ -146,8 +146,7 @@ async function setupInitialData() {
     const schemaName = process.env.DB_SCHEMA || 'urlshortener';
     console.log(`Setting up initial data in schema "${schemaName}"...`);
     
-    // Before doing anything, try to create the schema if it doesn't exist
-    await db.execute(sql`CREATE SCHEMA IF NOT EXISTS ${sql.raw(schemaName)}`);
+    // Schema creation is now handled in server/db.ts on pool connect
     
     // Check if testuser exists
     const existingUser = await db
