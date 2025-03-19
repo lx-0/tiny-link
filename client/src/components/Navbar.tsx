@@ -36,10 +36,14 @@ export default function Navbar() {
       }
     }
 
-    fetchUser();
+    // Delay the user fetch to prevent React state updates during render
+    const timer = setTimeout(() => {
+      fetchUser();
+    }, 0);
     
     // Cleanup function to prevent state updates after unmounting
     return () => {
+      clearTimeout(timer);
       isMounted = false;
     };
   }, []);

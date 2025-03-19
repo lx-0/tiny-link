@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
 import { Url } from '@shared/schema';
 
-import Navbar from '@/components/Navbar';
+
 import StatCard from '@/components/StatCard';
 import LinkItem from '@/components/LinkItem';
 import LinkFormModal from '@/components/LinkFormModal';
@@ -46,7 +46,7 @@ export default function Dashboard() {
     const checkAuth = async () => {
       try {
         const user = await getCurrentUser();
-        // Only navigate if the component is still mounted
+        // Only navigate if the component is still mounted and user is not authenticated
         if (!user && isMounted) {
           navigate('/login', { replace: true });
         }
@@ -58,13 +58,17 @@ export default function Dashboard() {
       }
     };
     
-    checkAuth();
+    // Delay the authentication check slightly to prevent React state updates during render
+    const timer = setTimeout(() => {
+      checkAuth();
+    }, 0);
     
     // Cleanup function to prevent state updates after unmounting
     return () => {
+      clearTimeout(timer);
       isMounted = false;
     };
-  }, [navigate]);
+  }, []);
   
   // Fetch user URLs
   const { 
@@ -225,7 +229,6 @@ export default function Dashboard() {
   
   return (
     <>
-      <Navbar />
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div className="mb-6 sm:flex sm:items-center sm:justify-between">
           <h1 className="text-2xl font-bold text-gray-900">Your Links</h1>
