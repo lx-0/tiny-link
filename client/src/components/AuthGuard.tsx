@@ -12,8 +12,15 @@ export default function AuthGuard({
   requireAuth?: boolean,
   redirectTo?: string
 }) {
-  const [location, navigate] = useLocation();
+  const [location, setLocation] = useLocation();
   const { user, isLoading, isAuthenticated } = useAuth();
+  
+  // Helper to navigate without causing location format issues
+  const navigate = (path: string) => {
+    // Ensure path starts with a single slash
+    const normalizedPath = path.replace(/^\/*/, '/');
+    setLocation(normalizedPath);
+  };
   
   // Handle authentication logic
   useEffect(() => {

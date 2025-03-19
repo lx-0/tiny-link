@@ -6,9 +6,16 @@ import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 
 export default function RedirectPage() {
-  const [location, navigate] = useLocation();
+  const [location, setLocation] = useLocation();
   const [shortCode, setShortCode] = useState<string>('');
   const params = useParams();
+  
+  // Helper to navigate without causing location format issues
+  const navigate = (path: string) => {
+    // Ensure path starts with a single slash
+    const normalizedPath = path.replace(/^\/*/, '/');
+    setLocation(normalizedPath);
+  };
   
   useEffect(() => {
     // First try to get shortcode from route params (for /r/:shortCode routes)

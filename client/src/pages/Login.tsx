@@ -23,10 +23,17 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function Login() {
-  const [_, navigate] = useLocation();
+  const [_, setLocation] = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
+  
+  // Helper to navigate without causing location format issues
+  const navigate = (path: string) => {
+    // Ensure path starts with a single slash
+    const normalizedPath = path.replace(/^\/*/, '/');
+    setLocation(normalizedPath);
+  };
 
   // Initialize form
   const form = useForm<FormValues>({

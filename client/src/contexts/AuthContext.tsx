@@ -32,7 +32,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  const [_, navigate] = useLocation();
+  const [_, setLocation] = useLocation();
+  
+  // Helper to navigate without causing location format issues
+  const navigate = (path: string) => {
+    // Ensure path starts with a single slash
+    const normalizedPath = path.replace(/^\/*/, '/');
+    setLocation(normalizedPath);
+  };
 
   // Function to check authentication status
   const refreshUser = async () => {
