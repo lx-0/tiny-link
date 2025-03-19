@@ -1,6 +1,7 @@
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import Navbar from "@/components/Navbar";
 import NotFound from "@/pages/not-found";
@@ -8,7 +9,9 @@ import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import RedirectPage from "@/pages/RedirectPage";
+import { getCurrentUser } from "@/lib/supabase";
 
+// Simple layout component
 function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const isAuthPage = location === '/login' || location === '/register';

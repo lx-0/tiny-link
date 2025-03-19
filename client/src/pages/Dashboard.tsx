@@ -2,11 +2,10 @@ import { useState, useEffect } from 'react';
 import { Link as LinkIcon, Search, PlusCircle, Eye, Link2, Timer } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { getCurrentUser } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
+import { getCurrentUser } from '@/lib/supabase';
 import { useLocation } from 'wouter';
 import { Url } from '@shared/schema';
-
 
 import StatCard from '@/components/StatCard';
 import LinkItem from '@/components/LinkItem';
@@ -25,8 +24,8 @@ import {
 
 export default function Dashboard() {
   const { toast } = useToast();
-  const [_, navigate] = useLocation();
   const queryClient = useQueryClient();
+  const [_, navigate] = useLocation();
   
   // State for modals and selected URL
   const [showAddModal, setShowAddModal] = useState(false);
@@ -39,14 +38,14 @@ export default function Dashboard() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortOption, setSortOption] = useState('newest');
   
-  // Check authentication
+  // Authentication check
   useEffect(() => {
     let isMounted = true;
     
+    // Function to check authentication
     const checkAuth = async () => {
       try {
         const user = await getCurrentUser();
-        // Only navigate if the component is still mounted and user is not authenticated
         if (!user && isMounted) {
           navigate('/login', { replace: true });
         }
@@ -58,17 +57,17 @@ export default function Dashboard() {
       }
     };
     
-    // Delay the authentication check slightly to prevent React state updates during render
+    // Set a small timeout to avoid updating during render
     const timer = setTimeout(() => {
       checkAuth();
-    }, 0);
+    }, 10);
     
-    // Cleanup function to prevent state updates after unmounting
     return () => {
       clearTimeout(timer);
       isMounted = false;
     };
-  }, []);
+  }, [navigate]);
+  
   
   // Fetch user URLs
   const { 

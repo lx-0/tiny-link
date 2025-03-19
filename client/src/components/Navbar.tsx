@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import { getCurrentUser, signOut } from '@/lib/supabase';
 import {
@@ -8,42 +8,38 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, LogOut, Settings, User } from 'lucide-react';
+import { ChevronDown, LogOut, Settings, User as UserIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Navbar() {
-  const [user, setUser] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [_, navigate] = useLocation();
   const { toast } = useToast();
-
+  const [user, setUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Load user data - simplified for this component
   useEffect(() => {
     let isMounted = true;
     
-    async function fetchUser() {
+    const loadUser = async () => {
       try {
-        const currentUser = await getCurrentUser();
-        // Only update state if the component is still mounted
+        const userData = await getCurrentUser();
+        
         if (isMounted) {
-          setUser(currentUser);
+          setUser(userData);
           setIsLoading(false);
         }
       } catch (error) {
-        console.error('Failed to fetch user:', error);
+        console.error('Failed to load user data:', error);
         if (isMounted) {
           setIsLoading(false);
         }
       }
-    }
-
-    // Delay the user fetch to prevent React state updates during render
-    const timer = setTimeout(() => {
-      fetchUser();
-    }, 0);
+    };
     
-    // Cleanup function to prevent state updates after unmounting
+    loadUser();
+    
     return () => {
-      clearTimeout(timer);
       isMounted = false;
     };
   }, []);
@@ -103,7 +99,7 @@ export default function Navbar() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem>
-                    <User className="mr-2 h-4 w-4" />
+                    <UserIcon className="mr-2 h-4 w-4" />
                     <span>Profile</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
