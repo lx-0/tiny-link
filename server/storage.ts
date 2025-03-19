@@ -124,7 +124,8 @@ export class DatabaseStorage implements IStorage {
       .from(urls)
       .where(eq(urls.userId, userId));
       
-    return result[0]?.totalClicks || 0;
+    // Ensure we return a number, not a string
+    return result[0]?.totalClicks ? Number(result[0].totalClicks) : 0;
   }
 
   async getAverageClickRate(userId: number): Promise<number> {
@@ -133,7 +134,8 @@ export class DatabaseStorage implements IStorage {
       .from(urls)
       .where(eq(urls.userId, userId));
       
-    return result[0]?.averageClicks || 0;
+    // Ensure we return a number, not a string
+    return result[0]?.averageClicks ? Number(result[0].averageClicks) : 0;
   }
 }
 

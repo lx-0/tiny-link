@@ -232,7 +232,7 @@ export default function Dashboard() {
           <StatCard
             icon={<Timer className="h-6 w-6 text-accent" />}
             title="Average CTR"
-            value={statsLoading ? '...' : `${stats.averageCTR.toFixed(1)}`}
+            value={statsLoading ? '...' : `${Number(stats.averageCTR).toFixed(1)}`}
             bg="bg-indigo-100"
           />
         </div>
