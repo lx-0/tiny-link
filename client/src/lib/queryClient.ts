@@ -34,6 +34,9 @@ export async function apiRequest(
     const { data: sessionData } = await supabase.auth.getSession();
     if (sessionData?.session?.user?.id) {
       headers['x-user-id'] = sessionData.session.user.id;
+      console.log('Added auth header:', sessionData.session.user.id);
+    } else {
+      console.log('No auth session found for request');
     }
   } catch (error) {
     console.error('Failed to get auth header:', error);
@@ -64,6 +67,9 @@ export const getQueryFn: <T>(options: {
       const { data: sessionData } = await supabase.auth.getSession();
       if (sessionData?.session?.user?.id) {
         headers['x-user-id'] = sessionData.session.user.id;
+        console.log('Added auth header for query:', sessionData.session.user.id);
+      } else {
+        console.log('No auth session found for query request');
       }
     } catch (error) {
       console.error('Failed to get auth header:', error);

@@ -97,19 +97,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/urls", async (req, res) => {
     const supabaseId = req.headers["x-user-id"] as string;
+    console.log('DEBUG: GET /api/urls - Auth header:', supabaseId);
+    
     if (!supabaseId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
     try {
       const user = await storage.getUserBySupabaseId(supabaseId);
+      console.log('DEBUG: GET /api/urls - User lookup result:', user ? 'Found user' : 'No user found');
+      
       if (!user) {
+        // For debugging, list all available users
+        const allUsers = Array.from(storage.getAllUsers().values());
+        console.log('DEBUG: Available users:', allUsers.map(u => ({ 
+          id: u.id, 
+          userId: u.userId, 
+          username: u.username 
+        })));
+        
         return res.status(404).json({ message: "User not found" });
       }
 
       const urls = await storage.getUrlsByUserId(user.id);
+      console.log('DEBUG: GET /api/urls - Found URLs:', urls.length);
       res.json(urls);
     } catch (error) {
+      console.error('DEBUG: GET /api/urls - Error:', error);
       res.status(500).json({ message: "Error fetching URLs" });
     }
   });

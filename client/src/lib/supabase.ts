@@ -64,8 +64,20 @@ export async function signOut() {
 }
 
 export async function getCurrentUser() {
-  const { data } = await supabase.auth.getUser();
-  return data?.user || null;
+  try {
+    const { data } = await supabase.auth.getUser();
+    if (data?.user) {
+      // Log the auth state to help with debugging
+      console.log('Auth state: User authenticated', { id: data.user.id });
+      return data.user;
+    } else {
+      console.log('Auth state: No authenticated user');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    return null;
+  }
 }
 
 // This function is no longer needed as we handle auth headers directly in API requests

@@ -17,6 +17,7 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserBySupabaseId(userId: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  getAllUsers(): Map<number, User>; // Added for debugging
   
   getUrl(id: number): Promise<Url | undefined>;
   getUrlByShortCode(shortCode: string): Promise<Url | undefined>;
@@ -43,6 +44,31 @@ export class MemStorage implements IStorage {
     this.urls = new Map();
     this.userIdCounter = 1;
     this.urlIdCounter = 1;
+    
+    // Create a test user for debugging
+    const testUser: User = {
+      id: this.userIdCounter++,
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'supabase-managed',
+      userId: 'e1d08825-392d-4e15-a0fb-981eb87b8798' // Match the logged Supabase user ID for testing
+    };
+    this.users.set(testUser.id, testUser);
+    
+    // Create a test URL for this user
+    const testUrl: Url = {
+      id: this.urlIdCounter++,
+      userId: testUser.id,
+      originalUrl: 'https://example.com',
+      shortCode: 'test123',
+      isActive: true,
+      createdAt: new Date(),
+      clicks: 5
+    };
+    this.urls.set(testUrl.id, testUrl);
+    
+    console.log('DEBUG: Created test user', testUser);
+    console.log('DEBUG: Created test URL', testUrl);
   }
 
   async getUser(id: number): Promise<User | undefined> {
@@ -66,6 +92,11 @@ export class MemStorage implements IStorage {
     const user: User = { ...insertUser, id };
     this.users.set(id, user);
     return user;
+  }
+  
+  // Helper method for debugging
+  getAllUsers(): Map<number, User> {
+    return this.users;
   }
 
   async getUrl(id: number): Promise<Url | undefined> {
