@@ -234,28 +234,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // API endpoint for redirect (used by React components)
-  app.get("/api/urls/redirect/:shortCode", async (req, res) => {
-    const { shortCode } = req.params;
-    
-    try {
-      const url = await storage.getUrlByShortCode(shortCode);
-      
-      if (!url || !url.isActive) {
-        return res.status(404).json({ message: "URL not found or inactive" });
-      }
-      
-      // Increment click count
-      await storage.incrementUrlClicks(url.id);
-      
-      // Return the original URL for client-side redirection
-      res.json({ originalUrl: url.originalUrl });
-    } catch (error) {
-      res.status(500).json({ message: "Error processing redirect" });
-    }
-  });
-  
-  // Server-side redirect handler for /r/:shortCode
+  // Redirect route - needs to be at the end to avoid conflicts with API routes
   app.get("/r/:shortCode", async (req, res) => {
     const { shortCode } = req.params;
     
@@ -272,7 +251,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Redirect to the original URL
       res.redirect(url.originalUrl);
     } catch (error) {
-      console.error('Error processing redirect:', error);
       res.status(500).json({ message: "Error processing redirect" });
     }
   });
