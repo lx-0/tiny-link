@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
-import { signIn } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useAuth } from '@/contexts/AuthContext';
 
 import Navbar from '@/components/Navbar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -26,6 +26,7 @@ export default function Login() {
   const [_, navigate] = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
 
   // Initialize form
   const form = useForm<FormValues>({
@@ -40,12 +41,15 @@ export default function Login() {
   const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
     try {
-      await signIn(data.email, data.password);
+      await login(data.email, data.password);
+      
       toast({
         title: 'Logged in successfully',
         description: 'Welcome back to TinyLink!',
       });
-      navigate('/');
+      
+      // Navigate to dashboard after successful login
+      navigate('/dashboard');
     } catch (error: any) {
       toast({
         title: 'Login failed',
