@@ -61,6 +61,9 @@ export async function signUp(email: string, password: string, username: string) 
 export async function signOut() {
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
+  
+  // Clear any route-specific data from localStorage that might cause issues
+  localStorage.removeItem('redirectUrl');
 }
 
 export async function getCurrentUser() {

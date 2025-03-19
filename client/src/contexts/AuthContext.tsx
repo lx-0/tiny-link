@@ -105,13 +105,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Function to handle logout
   const logout = async () => {
     try {
+      // Sign out from Supabase, which also clears localStorage
       await signOut();
       setUser(null);
+      
+      // Show success toast
       toast({
         title: 'Signed out successfully',
         description: 'You have been signed out of your account.',
       });
-      navigate('/login');
+      
+      // After a small delay to let the logout complete fully
+      setTimeout(() => {
+        // Use our safe navigation utility to ensure proper URL format
+        import('@/lib/utils').then(({ safeNavigate }) => {
+          safeNavigate('/login', { forceReload: true });
+        });
+      }, 100);
     } catch (error) {
       toast({
         title: 'Error signing out',

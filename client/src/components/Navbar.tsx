@@ -16,9 +16,10 @@ export default function Navbar() {
   
   // Helper to navigate without causing location format issues
   const navigate = (path: string) => {
-    // Ensure path starts with a single slash
-    const normalizedPath = path.replace(/^\/*/, '/');
-    setLocation(normalizedPath);
+    // Import and use our safe navigation utility dynamically
+    import('@/lib/utils').then(({ safeNavigate }) => {
+      safeNavigate(path);
+    });
   };
   
   // Handle sign out using the context
