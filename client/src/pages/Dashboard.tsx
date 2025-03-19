@@ -186,17 +186,20 @@ export default function Dashboard() {
       }
     });
   
-  // Handle errors in useEffect to avoid render loops
+  // Handle 404 errors differently than other errors
   useEffect(() => {
-    // Only show error if both there's an error AND no URLs loaded
-    if (urlsError && urls.length === 0) {
+    // User found error messages shouldn't trigger toast alerts
+    if (urlsError && 
+        typeof urlsError === 'object' && 
+        'message' in urlsError && 
+        urlsError.message !== 'User not found') {
       toast({
         title: 'Failed to load URLs',
         description: 'Please refresh the page and try again.',
         variant: 'destructive',
       });
     }
-  }, [urlsError, urls.length, toast]);
+  }, [urlsError, toast]);
   
   return (
     <>
@@ -302,8 +305,12 @@ export default function Dashboard() {
               ))}
             </ul>
             
-            {/* Don't show error message when we have links */}
-            {urlsError && filteredAndSortedUrls.length === 0 && (
+            {/* Only show certain error messages */}
+            {urlsError && 
+             filteredAndSortedUrls.length === 0 && 
+             typeof urlsError === 'object' && 
+             'message' in urlsError && 
+             urlsError.message !== 'User not found' && (
               <div className="mt-6 bg-red-50 border border-red-200 rounded-md p-4">
                 <div className="flex">
                   <div className="flex-shrink-0">
