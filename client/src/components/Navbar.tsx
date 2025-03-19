@@ -18,18 +18,30 @@ export default function Navbar() {
   const { toast } = useToast();
 
   useEffect(() => {
+    let isMounted = true;
+    
     async function fetchUser() {
       try {
         const currentUser = await getCurrentUser();
-        setUser(currentUser);
+        // Only update state if the component is still mounted
+        if (isMounted) {
+          setUser(currentUser);
+          setIsLoading(false);
+        }
       } catch (error) {
         console.error('Failed to fetch user:', error);
-      } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     }
 
     fetchUser();
+    
+    // Cleanup function to prevent state updates after unmounting
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleSignOut = async () => {

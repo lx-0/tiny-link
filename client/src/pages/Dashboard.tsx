@@ -41,31 +41,53 @@ export default function Dashboard() {
   
   // Check authentication
   useEffect(() => {
+    let isMounted = true;
+    
     const checkAuth = async () => {
-      const user = await getCurrentUser();
-      if (!user) {
-        navigate('/login');
+      try {
+        const user = await getCurrentUser();
+        // Only navigate if the component is still mounted
+        if (!user && isMounted) {
+          navigate('/login', { replace: true });
+        }
+      } catch (error) {
+        console.error('Authentication error:', error);
+        if (isMounted) {
+          navigate('/login', { replace: true });
+        }
       }
     };
     
     checkAuth();
+    
+    // Cleanup function to prevent state updates after unmounting
+    return () => {
+      isMounted = false;
+    };
   }, [navigate]);
   
   // Fetch user URLs
   const { 
-    data: urls = [], 
+    data: urls = [] as Url[], 
     isLoading: urlsLoading, 
     error: urlsError 
-  } = useQuery({
+  } = useQuery<Url[]>({
     queryKey: ['/api/urls'],
     staleTime: 10000,
   });
   
+  // Define stats type
+  interface Stats {
+    totalUrls: number;
+    totalClicks: number;
+    averageCTR: number;
+  }
+  
   // Fetch stats
   const { 
-    data: stats = { totalUrls: 0, totalClicks: 0, averageCTR: 0 }, 
+    data: stats = { totalUrls: 0, totalClicks: 0, averageCTR: 0 } as Stats, 
     isLoading: statsLoading,
-  } = useQuery({
+  } = useQuery<Stats>({
     queryKey: ['/api/stats'],
     staleTime: 30000,
   });

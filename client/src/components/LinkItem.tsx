@@ -54,7 +54,7 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
                   {url.originalUrl}
                 </div>
                 <div className="mt-1 flex items-center space-x-2">
-                  <Badge variant={url.isActive ? "success" : "secondary"}>
+                  <Badge variant={url.isActive ? "default" : "outline"}>
                     {url.isActive ? 'Active' : 'Inactive'}
                   </Badge>
                   <span className="text-sm text-gray-500">
