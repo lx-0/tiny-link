@@ -139,76 +139,123 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-// Create a test user and URL in the database if needed
-async function setupInitialData() {
-  try {
-    // Get schema name from environment variable or default to 'custom'
-    const schemaName = process.env.DB_SCHEMA || 'custom';
-    console.log(`Setting up initial data in schema "${schemaName}"...`);
-    
-    // Schema creation is now handled in server/db.ts on pool connect
-    
-    // Check if testuser exists
-    const existingUser = await db
-      .select()
-      .from(users)
-      .where(eq(users.userId, 'e1d08825-392d-4e15-a0fb-981eb87b8798'));
-    
-    let testUserId: number;
-    
-    if (existingUser.length === 0) {
-      // Create test user
-      const testUser: InsertUser = {
-        username: 'testuser',
-        email: 'test@example.com',
-        password: 'supabase-managed',
-        userId: 'e1d08825-392d-4e15-a0fb-981eb87b8798'
-      };
+/**
+ * Utility function to add delay for retry mechanisms
+ */
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+/**
+ * Setup initial test data with retry mechanism
+ */
+async function setupInitialData(maxRetries = 3, retryDelay = 2000) {
+  let retries = 0;
+  let lastError: any = null;
+
+  // Get schema name from environment variable or default to 'tinylink'
+  const schemaName = process.env.DB_SCHEMA || 'tinylink';
+  
+  while (retries < maxRetries) {
+    try {
+      console.log(`Setting up initial data in schema "${schemaName}"... (Attempt ${retries + 1}/${maxRetries})`);
       
-      const [insertedUser] = await db.insert(users).values(testUser).returning();
-      console.log(`DEBUG: Created test user in "${schemaName}" schema`, insertedUser);
-      testUserId = insertedUser.id;
-    } else {
-      testUserId = existingUser[0].id;
-      console.log(`DEBUG: Using existing test user from "${schemaName}" schema`, existingUser[0]);
-    }
-    
-    // Check if test URL exists
-    const existingUrl = await db
-      .select()
-      .from(urls)
-      .where(eq(urls.shortCode, 'test123'));
+      // Verify schema exists by checking database connection
+      // This also ensures the schema is created via the pool.on('connect') handler
+      await db.execute(sql`SELECT 1`);
+      console.log(`Database connection successful, schema "${schemaName}" should be available`);
       
-    if (existingUrl.length === 0) {
-      // Create test URL
-      const testUrl: InsertUrl = {
-        userId: testUserId,
-        originalUrl: 'https://example.com',
-        shortCode: 'test123',
-        isActive: true
-      };
+      // Check if testuser exists with proper error handling
+      const existingUser = await db
+        .select()
+        .from(users)
+        .where(eq(users.userId, 'e1d08825-392d-4e15-a0fb-981eb87b8798'));
       
-      const [insertedUrl] = await db.insert(urls).values(testUrl).returning();
+      console.log(`Checked for existing test user, found ${existingUser.length} results`);
       
-      // Add initial clicks
-      if (insertedUrl) {
+      let testUserId: number;
+      
+      if (existingUser.length === 0) {
+        // Create test user
+        const testUser: InsertUser = {
+          username: 'testuser',
+          email: 'test@example.com',
+          password: 'supabase-managed',
+          userId: 'e1d08825-392d-4e15-a0fb-981eb87b8798'
+        };
+        
+        const insertResult = await db.insert(users).values(testUser).returning();
+        
+        if (!insertResult || insertResult.length === 0) {
+          throw new Error('Failed to insert test user: Empty result returned');
+        }
+        
+        testUserId = insertResult[0].id;
+        console.log(`Created test user in "${schemaName}" schema with ID ${testUserId}`);
+      } else {
+        testUserId = existingUser[0].id;
+        console.log(`Using existing test user from "${schemaName}" schema with ID ${testUserId}`);
+      }
+      
+      // Check if test URL exists
+      const existingUrl = await db
+        .select()
+        .from(urls)
+        .where(eq(urls.shortCode, 'test123'));
+        
+      if (existingUrl.length === 0) {
+        // Create test URL
+        const testUrl: InsertUrl = {
+          userId: testUserId,
+          originalUrl: 'https://example.com',
+          shortCode: 'test123',
+          isActive: true
+        };
+        
+        const insertedUrlResult = await db.insert(urls).values(testUrl).returning();
+        
+        if (!insertedUrlResult || insertedUrlResult.length === 0) {
+          throw new Error('Failed to insert test URL: Empty result returned');
+        }
+        
+        const insertedUrl = insertedUrlResult[0];
+        
+        // Add initial clicks
         await db
           .update(urls)
           .set({ clicks: 5 })
           .where(eq(urls.id, insertedUrl.id));
           
-        const [updatedUrl] = await db
+        const updatedUrlResult = await db
           .select()
           .from(urls)
           .where(eq(urls.id, insertedUrl.id));
           
-        console.log(`DEBUG: Created test URL in "${schemaName}" schema`, updatedUrl);
+        console.log(`Created test URL in "${schemaName}" schema`, updatedUrlResult[0] || 'No updated URL found');
+      } else {
+        console.log(`Using existing test URL from "${schemaName}" schema`, existingUrl[0]);
       }
-    } else {
-      console.log(`DEBUG: Using existing test URL from "${schemaName}" schema`, existingUrl[0]);
+      
+      // If we get here, everything succeeded
+      console.log(`Initial data setup completed successfully in schema "${schemaName}"`);
+      return;
+      
+    } catch (error: any) {
+      lastError = error;
+      console.error(`Error setting up initial data (attempt ${retries + 1}/${maxRetries}):`, error.message || error);
+      
+      // Only retry if we haven't hit max retries yet
+      if (retries < maxRetries - 1) {
+        console.log(`Retrying in ${retryDelay}ms...`);
+        await sleep(retryDelay);
+        retries++;
+      } else {
+        console.error(`Failed to set up initial data after ${maxRetries} attempts`);
+      }
     }
-  } catch (error) {
-    console.error('Error setting up initial data:', error);
+  }
+  
+  // If we exhausted all retries, throw the last error to be caught by the caller
+  if (lastError) {
+    throw lastError;
   }
 }
 

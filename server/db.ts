@@ -12,12 +12,13 @@ if (!process.env.SUPABASE_DATABASE_URL) {
 const schemaName = process.env.DB_SCHEMA || 'tinylink';
 console.log(`Initializing database connection with schema: ${schemaName}`);
 
-// Create a pool with proper error handling
+// Create a pool with proper error handling and more lenient timeouts
 export const pool = new pg.Pool({ 
   connectionString: process.env.SUPABASE_DATABASE_URL,
-  max: 5, // Maximum number of clients the pool should contain
-  idleTimeoutMillis: 30000, // How long a client is allowed to remain idle before being closed
-  connectionTimeoutMillis: 10000 // How long to wait for a connection
+  max: 10, // Maximum number of clients the pool should contain
+  idleTimeoutMillis: 60000, // How long a client is allowed to remain idle before being closed (1 minute)
+  connectionTimeoutMillis: 30000, // How long to wait for a connection (30 seconds)
+  allowExitOnIdle: false // Don't exit the process when pool is idle
 });
 
 // Log any pool errors
