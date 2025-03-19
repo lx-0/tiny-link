@@ -2,6 +2,9 @@ import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Get schema from environment variable or default to 'public'
+const schemaName = process.env.DB_SCHEMA || 'public';
+
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
