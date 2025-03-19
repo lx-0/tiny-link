@@ -6,8 +6,8 @@ import { z } from "zod";
 const schemaName = process.env.DB_SCHEMA || 'tinylink';
 console.log(`Using schema: ${schemaName} for database tables`);
 
-// Create custom schema tables
-export const users = pgTable(`${schemaName}.users`, {
+// Create custom schema tables with schema set through search_path
+export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
@@ -15,7 +15,7 @@ export const users = pgTable(`${schemaName}.users`, {
   userId: text("user_id").notNull(), // supabase user ID
 });
 
-export const urls = pgTable(`${schemaName}.urls`, {
+export const urls = pgTable("urls", {
   id: serial("id").primaryKey(),
   originalUrl: text("original_url").notNull(),
   shortCode: text("short_code").notNull().unique(),
