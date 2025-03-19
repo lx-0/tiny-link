@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Safely navigate to a path with proper URL formatting
+ * Safely navigate to a path with proper URL formatting to prevent double slashes
  * @param path The path to navigate to
  * @param options Optional configuration
  */
@@ -17,26 +17,30 @@ export function safeNavigate(
     forceReload?: boolean;
   } = {}
 ) {
-  // Normalize the path to prevent double slashes
-  const normalizedPath = '/' + path.replace(/^\/+/, '');
+  // Create correctly formatted URL with no double slashes
+  // First remove all leading slashes, then add a single one
+  const cleanPath = path.replace(/^\/+/, '');
+  const normalizedPath = '/' + cleanPath;
   
   // If force reload is requested or we are signing out, use window.location
   // This ensures a clean slate and avoids SPA navigation issues
   if (options.useWindowLocation || options.forceReload || path === '/login') {
+    // For hard reloads, use the Location API to ensure a proper reload
     window.location.href = normalizedPath;
     return;
   }
   
-  // For normal in-app navigation, we need to use history API
-  // as wouter's useLocation hook can only be used inside components
+  // For normal in-app navigation, directly use wouter's approach
+  // Wouter listens to popstate events, so we need to trigger history changes
   try {
-    // Use the History API to update the URL without a full page reload
-    window.history.pushState({}, '', normalizedPath);
+    // First update the browser URL (without causing a page reload)
+    window.history.pushState(null, '', normalizedPath);
     
-    // Dispatch a custom event that components can listen for to update their state
-    window.dispatchEvent(new CustomEvent('locationchange', { 
-      detail: { path: normalizedPath }
-    }));
+    // Then dispatch a popstate event for wouter to detect
+    window.dispatchEvent(new PopStateEvent('popstate', { state: null }));
+    
+    // Log success for debugging
+    console.log(`Navigation successful to: ${normalizedPath}`);
   } catch (error) {
     // Fallback to basic navigation if the History API fails
     console.error("Error during navigation:", error);

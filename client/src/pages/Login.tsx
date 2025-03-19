@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@/contexts/AuthContext';
+import NormalizedLink from '@/components/ui/normalized-link';
 
 import Navbar from '@/components/Navbar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -28,11 +29,12 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   
-  // Helper to navigate without causing location format issues
+  // Helper to navigate safely to prevent href errors
   const navigate = (path: string) => {
-    // Ensure path starts with a single slash
-    const normalizedPath = path.replace(/^\/*/, '/');
-    setLocation(normalizedPath);
+    // Use the centralized safe navigation utility
+    import('@/lib/utils').then(({ safeNavigate }) => {
+      safeNavigate(path);
+    });
   };
 
   // Initialize form
@@ -79,16 +81,12 @@ export default function Login() {
             <CardTitle className="text-2xl font-bold text-center">Sign in to your account</CardTitle>
             <CardDescription className="text-center">
               Or{' '}
-              <a 
-                href="/register" 
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate('/register');
-                }}
+              <NormalizedLink
+                href="/register"
                 className="font-medium text-primary hover:text-blue-500"
               >
                 create a new account
-              </a>
+              </NormalizedLink>
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -158,12 +156,12 @@ export default function Login() {
                     )}
                   />
                   
-                  <a
-                    href="#"
+                  <NormalizedLink
+                    href="/forgot-password"
                     className="text-sm font-medium text-primary hover:text-blue-500"
                   >
                     Forgot your password?
-                  </a>
+                  </NormalizedLink>
                 </div>
                 
                 <Button

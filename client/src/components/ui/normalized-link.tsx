@@ -18,8 +18,11 @@ function NormalizedLink({
   className?: string;
   asChild?: boolean;
 }) {
-  // Ensure href starts with a single slash and doesn't have double slashes
-  const normalizedHref = '/' + href.replace(/^\/+/, '');
+  // Properly normalize href to prevent invalid URL errors:
+  // 1. Remove all leading slashes
+  // 2. Add a single leading slash
+  const cleanPath = href.replace(/^\/+/, '');
+  const normalizedHref = '/' + cleanPath;
   
   // Create a simple <a> tag instead of using Link if asChild is true
   // This works around some of the Link component limitations
