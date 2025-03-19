@@ -10,8 +10,15 @@ import { ChevronDown, LogOut, Settings, User as UserIcon } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function Navbar() {
-  const [_, navigate] = useLocation();
+  const [_, setLocation] = useLocation();
   const { user, isLoading, logout } = useAuth();
+  
+  // Helper to navigate without causing location format issues
+  const navigate = (path: string) => {
+    // Ensure path starts with a single slash
+    const normalizedPath = path.replace(/^\/*/, '/');
+    setLocation(normalizedPath);
+  };
   
   // Handle sign out using the context
   const handleSignOut = async () => {
