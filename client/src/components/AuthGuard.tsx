@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
-import { getCurrentUser } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Authentication wrapper component
 export default function AuthGuard({ 
@@ -14,41 +13,25 @@ export default function AuthGuard({
   redirectTo?: string
 }) {
   const [_, navigate] = useLocation();
-  
-  // Get current user with React Query
-  const { data: user, isLoading } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: async () => {
-      try {
-        return await getCurrentUser();
-      } catch (error) {
-        console.error('Error fetching user:', error);
-        return null;
-      }
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes 
-    refetchOnWindowFocus: false
-  });
+  const { user, isLoading, isAuthenticated } = useAuth();
   
   // Handle authentication logic
   useEffect(() => {
     // Wait for loading to complete
-    if (!isLoading) {
-      const authenticated = !!user;
-      
+    if (!isLoading) {      
       // Unauthenticated user trying to access protected route
-      if (requireAuth && !authenticated) {
+      if (requireAuth && !isAuthenticated) {
         navigate(redirectTo);
       }
       
       // Authenticated user trying to access auth-only route (login/register)
-      if (!requireAuth && authenticated) {
-        navigate('/');
+      if (!requireAuth && isAuthenticated) {
+        navigate('/dashboard');
       }
     }
-  }, [user, isLoading, requireAuth, redirectTo, navigate]);
+  }, [user, isLoading, isAuthenticated, requireAuth, redirectTo, navigate]);
   
-  // Show nothing while checking authentication
+  // Show loading state while checking authentication
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -61,7 +44,7 @@ export default function AuthGuard({
   
   // User is authenticated and route requires auth, or
   // User is not authenticated and route doesn't require auth
-  if ((requireAuth && !!user) || (!requireAuth && !user)) {
+  if ((requireAuth && isAuthenticated) || (!requireAuth && !isAuthenticated)) {
     return <>{children}</>;
   }
   

@@ -9,8 +9,8 @@ import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import RedirectPage from "@/pages/RedirectPage";
-import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { useEffect } from "react";
+import { AuthProvider } from "@/contexts/AuthContext";
+import AuthGuard from "@/components/AuthGuard";
 
 // Simple layout component
 function AppLayout({ children }: { children: React.ReactNode }) {
@@ -27,46 +27,29 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth();
-  const [_, navigate] = useLocation();
-
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      navigate('/login');
-    }
-  }, [isAuthenticated, isLoading, navigate]);
-
-  // Show loading state while checking authentication
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-pulse">
-          <div className="h-12 w-12 bg-blue-400 rounded-full"></div>
-        </div>
-      </div>
-    );
-  }
-
-  // Once authenticated, render the children
-  return isAuthenticated ? <>{children}</> : null;
-}
-
 function Router() {
   return (
     <AppLayout>
       <Switch>
-        <Route path="/">
-          <ProtectedRoute>
+        <Route path="/dashboard">
+          <AuthGuard requireAuth={true}>
             <Dashboard />
-          </ProtectedRoute>
+          </AuthGuard>
+        </Route>
+        <Route path="/">
+          <AuthGuard requireAuth={true} redirectTo="/login">
+            <Dashboard />
+          </AuthGuard>
         </Route>
         <Route path="/login">
-          <Login />
+          <AuthGuard requireAuth={false} redirectTo="/dashboard">
+            <Login />
+          </AuthGuard>
         </Route>
         <Route path="/register">
-          <Register />
+          <AuthGuard requireAuth={false} redirectTo="/dashboard">
+            <Register />
+          </AuthGuard>
         </Route>
         <Route path="/not-found">
           <RedirectPage />
