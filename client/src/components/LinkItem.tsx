@@ -79,7 +79,17 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
               <div className="flex items-center px-3 py-2 text-sm font-medium rounded-md">
                 <div className="text-gray-900 truncate">
                   Shortened URL: 
-                  <a href={shortUrl} target="_blank" rel="noopener noreferrer" className="ml-1 font-medium text-primary hover:text-blue-600 truncate">
+                  <a 
+                    href={fullShortUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="ml-1 font-medium text-primary hover:text-blue-600 truncate"
+                    onClick={(e) => {
+                      // Prevent default to avoid navigation issues
+                      e.preventDefault();
+                      window.open(fullShortUrl, '_blank');
+                    }}
+                  >
                     {fullShortUrl}
                   </a>
                 </div>
