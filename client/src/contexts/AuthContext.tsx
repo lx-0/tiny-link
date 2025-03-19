@@ -46,6 +46,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true);
       const userData = await getCurrentUser();
+      
+      if (userData) {
+        // Verify user exists in our database
+        try {
+          // First attempt to fetch the user profile from our backend API
+          const userResponse = await fetch('/api/users/me', {
+            headers: {
+              'x-user-id': userData.id
+            }
+          });
+          
+          // If user not found in database, attempt recovery
+          if (userResponse.status === 404) {
+            console.log('User found in Supabase but not in database. Attempting recovery...');
+            
+            // Generate a default username from email
+            const defaultUsername = userData.email?.split('@')[0] || `user_${Date.now()}`;
+            
+            // Try to create a new user record in our database
+            const createResponse = await fetch('/api/users', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-user-id': userData.id
+              },
+              body: JSON.stringify({
+                email: userData.email,
+                username: defaultUsername,
+                password: 'supabase-managed', 
+                userId: userData.id
+              })
+            });
+            
+            if (createResponse.ok) {
+              console.log('User record recovery successful');
+              toast({
+                title: 'Account recovered',
+                description: 'We\'ve restored your account information.',
+              });
+            } else {
+              console.error('Failed to recover user record');
+            }
+          }
+        } catch (apiError) {
+          console.error('Error verifying user in database:', apiError);
+        }
+      }
+      
       setUser(userData);
       return userData;
     } catch (error) {
@@ -64,10 +112,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async function checkAuth() {
       try {
         setIsLoading(true);
-        const userData = await getCurrentUser();
+        // Use refreshUser which includes recovery logic
+        const userData = await refreshUser();
         
         if (mounted) {
-          setUser(userData);
+          // User is already set by refreshUser
           setIsLoading(false);
         }
       } catch (error) {
@@ -93,6 +142,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const data = await supabaseSignIn(email, password);
       const userData = data.user;
       setUser(userData);
+      
+      // After successful login, check and recover user if needed
+      if (userData) {
+        try {
+          // Check if user exists in our database
+          const userResponse = await fetch('/api/users/me', {
+            headers: {
+              'x-user-id': userData.id
+            }
+          });
+          
+          // If user not found in database, attempt recovery
+          if (userResponse.status === 404) {
+            console.log('User found in Supabase but not in database during login. Attempting recovery...');
+            
+            // Generate a default username from email
+            const defaultUsername = userData.email?.split('@')[0] || `user_${Date.now()}`;
+            
+            // Try to create a new user record in our database
+            const createResponse = await fetch('/api/users', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-user-id': userData.id
+              },
+              body: JSON.stringify({
+                email: userData.email,
+                username: defaultUsername,
+                password: 'supabase-managed', 
+                userId: userData.id
+              })
+            });
+            
+            if (createResponse.ok) {
+              console.log('User record recovery successful during login');
+              toast({
+                title: 'Account recovered',
+                description: 'We\'ve restored your account information.',
+              });
+            } else {
+              console.error('Failed to recover user record during login');
+            }
+          }
+        } catch (apiError) {
+          console.error('Error verifying user in database during login:', apiError);
+        }
+      }
+      
       return userData;
     } catch (error) {
       console.error('Login error:', error);
@@ -144,7 +241,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 }
 
 // Create a custom hook to use the auth context
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
