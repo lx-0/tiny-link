@@ -27,11 +27,9 @@ pool.on('error', (err) => {
   process.exit(-1);
 });
 
-// Create schema and set search path on connect
+// Set search path on connect
 pool.on('connect', async (client) => {
   try {
-    console.log(`Creating schema ${schemaName} if it doesn't exist...`);
-    await client.query(`CREATE SCHEMA IF NOT EXISTS ${schemaName};`);
     console.log(`Setting search path to ${schemaName}, public...`);
     await client.query(`SET search_path TO ${schemaName}, public;`);
   } catch (error) {
