@@ -1,4 +1,5 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { supabase } from "./supabase";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -12,9 +13,22 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
+  // Get auth header if available
+  const headers: Record<string, string> = data ? { "Content-Type": "application/json" } : {};
+  
+  try {
+    // Get user ID from Supabase if possible
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (sessionData?.session?.user?.id) {
+      headers['x-user-id'] = sessionData.session.user.id;
+    }
+  } catch (error) {
+    console.error('Failed to get auth header:', error);
+  }
+
   const res = await fetch(url, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
+    headers,
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
@@ -29,8 +43,22 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
+    // Create headers with auth information
+    const headers: Record<string, string> = {};
+    
+    try {
+      // Get user ID from Supabase if possible
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (sessionData?.session?.user?.id) {
+        headers['x-user-id'] = sessionData.session.user.id;
+      }
+    } catch (error) {
+      console.error('Failed to get auth header:', error);
+    }
+
     const res = await fetch(queryKey[0] as string, {
       credentials: "include",
+      headers
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {

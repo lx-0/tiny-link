@@ -5,7 +5,15 @@ import { apiRequest } from './queryClient';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-supabase-url.supabase.co';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-supabase-anon-key';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Get current app URL for redirects
+const appUrl = typeof window !== 'undefined' ? window.location.origin : '';
+
+// Create client with app-specific settings
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+  }
+});
 
 // Authentication helper functions
 export async function signIn(email: string, password: string) {
@@ -19,10 +27,13 @@ export async function signIn(email: string, password: string) {
 }
 
 export async function signUp(email: string, password: string, username: string) {
-  // Sign up with Supabase
+  // Sign up with Supabase - with redirect URL for this specific app
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email,
     password,
+    options: {
+      emailRedirectTo: `${window.location.origin}/login`
+    }
   });
   
   if (authError) throw authError;
@@ -57,9 +68,4 @@ export async function getCurrentUser() {
   return data?.user || null;
 }
 
-export function getAuthHeader() {
-  const session = supabase.auth.getSession();
-  return {
-    'x-user-id': session ? session.data?.session?.user?.id : '',
-  };
-}
+// This function is no longer needed as we handle auth headers directly in API requests
