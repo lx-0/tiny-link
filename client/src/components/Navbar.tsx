@@ -1,4 +1,5 @@
-import { Link, useLocation } from 'wouter';
+import { useLocation } from 'wouter';
+import NormalizedLink from '@/components/ui/normalized-link';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,9 +36,9 @@ export default function Navbar() {
                 <path d="M13.5 3H12H8C6.34315 3 5 4.34315 5 6V18C5 19.6569 6.34315 21 8 21H16C17.6569 21 19 19.6569 19 18V8.5M13.5 3L19 8.5M13.5 3V7C13.5 7.82843 14.1716 8.5 15 8.5H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M9 17H15M9 13H15M9 9H10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <Link href="/" className="ml-2 text-xl font-bold text-gray-900">
+              <NormalizedLink href="/" className="ml-2 text-xl font-bold text-gray-900">
                 TinyLink
-              </Link>
+              </NormalizedLink>
             </div>
           </div>
           
@@ -80,10 +81,10 @@ export default function Navbar() {
           ) : (
             <div className="flex items-center gap-2">
               <Button variant="ghost" className="text-gray-700" asChild>
-                <Link href="/login">Log in</Link>
+                <NormalizedLink href="/login">Log in</NormalizedLink>
               </Button>
               <Button className="bg-primary text-white hover:bg-blue-600" asChild>
-                <Link href="/register">Sign up</Link>
+                <NormalizedLink href="/register">Sign up</NormalizedLink>
               </Button>
             </div>
           )}
