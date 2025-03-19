@@ -17,9 +17,27 @@ export function safeNavigate(
     forceReload?: boolean;
   } = {}
 ) {
-  // Create correctly formatted URL with no double slashes
-  // First remove all leading slashes, then add a single one
-  const cleanPath = path.replace(/^\/+/, '');
+  // Strip off any domain/protocol if present
+  // This handles cases where the full URL is passed (e.g. from redirects)
+  let cleanPath = path;
+  
+  // Check if the path contains a protocol (http:// or https://) or domain
+  if (path.includes('://') || path.includes('.replit.dev/')) {
+    try {
+      // Try to parse as URL and extract just the pathname
+      const url = new URL(path.includes('://') ? path : `https://${path}`);
+      cleanPath = url.pathname;
+    } catch (e) {
+      // If URL parsing fails, try to extract pathname using regex
+      const pathMatch = path.match(/\.replit\.dev(\/[^?#]*)/);
+      if (pathMatch && pathMatch[1]) {
+        cleanPath = pathMatch[1];
+      }
+    }
+  }
+  
+  // Now normalize the path - remove all leading slashes then add a single one
+  cleanPath = cleanPath.replace(/^\/+/, '');
   const normalizedPath = '/' + cleanPath;
   
   // If force reload is requested or we are signing out, use window.location
