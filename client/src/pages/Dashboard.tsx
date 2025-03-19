@@ -3,8 +3,8 @@ import { Link as LinkIcon, Search, PlusCircle, Eye, Link2, Timer } from 'lucide-
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import { getCurrentUser } from '@/lib/supabase';
 import { useLocation } from 'wouter';
+import { useAuth } from '@/hooks/useAuth';
 import { Url } from '@shared/schema';
 
 import StatCard from '@/components/StatCard';
@@ -25,7 +25,6 @@ import {
 export default function Dashboard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [_, navigate] = useLocation();
   
   // State for modals and selected URL
   const [showAddModal, setShowAddModal] = useState(false);
@@ -37,36 +36,6 @@ export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortOption, setSortOption] = useState('newest');
-  
-  // Authentication check
-  useEffect(() => {
-    let isMounted = true;
-    
-    // Function to check authentication
-    const checkAuth = async () => {
-      try {
-        const user = await getCurrentUser();
-        if (!user && isMounted) {
-          navigate('/login', { replace: true });
-        }
-      } catch (error) {
-        console.error('Authentication error:', error);
-        if (isMounted) {
-          navigate('/login', { replace: true });
-        }
-      }
-    };
-    
-    // Set a small timeout to avoid updating during render
-    const timer = setTimeout(() => {
-      checkAuth();
-    }, 10);
-    
-    return () => {
-      clearTimeout(timer);
-      isMounted = false;
-    };
-  }, [navigate]);
   
   
   // Fetch user URLs

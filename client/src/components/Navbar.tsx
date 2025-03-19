@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
-import { getCurrentUser, signOut } from '@/lib/supabase';
+import { signOut, getCurrentUser } from '@/lib/supabase';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,39 +14,40 @@ import { useToast } from '@/hooks/use-toast';
 export default function Navbar() {
   const [_, navigate] = useLocation();
   const { toast } = useToast();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Load user data - simplified for this component
+  // Fetch user on mount
   useEffect(() => {
-    let isMounted = true;
+    let mounted = true;
     
-    const loadUser = async () => {
+    async function loadUser() {
       try {
         const userData = await getCurrentUser();
-        
-        if (isMounted) {
+        if (mounted) {
           setUser(userData);
           setIsLoading(false);
         }
       } catch (error) {
-        console.error('Failed to load user data:', error);
-        if (isMounted) {
+        console.error('Error loading user:', error);
+        if (mounted) {
           setIsLoading(false);
         }
       }
-    };
+    }
     
     loadUser();
     
     return () => {
-      isMounted = false;
+      mounted = false;
     };
   }, []);
-
+  
+  // Handle sign out
   const handleSignOut = async () => {
     try {
       await signOut();
+      setUser(null);
       toast({
         title: 'Signed out successfully',
         description: 'You have been signed out of your account.',
