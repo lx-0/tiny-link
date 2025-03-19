@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
-import { signUp } from '@/lib/supabase';
+import { signUp, signIn } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { apiRequest } from '@/lib/queryClient';
 
 import Navbar from '@/components/Navbar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -51,6 +52,7 @@ export default function Register() {
   const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
     try {
+      // Try to register normally
       await signUp(data.email, data.password, data.username);
       toast({
         title: 'Registration successful',
@@ -58,6 +60,38 @@ export default function Register() {
       });
       navigate('/login');
     } catch (error: any) {
+      // Check if this is a "User already registered" error from Supabase
+      if (error.message && (
+          error.message.includes('already registered') || 
+          error.message.includes('already in use') ||
+          error.message.includes('already exists')
+        )) {
+        // Special case: User exists in Supabase but not in our DB
+        try {
+          // Try to sign in with the provided credentials
+          const authResult = await signIn(data.email, data.password);
+          if (authResult && authResult.user) {
+            // User signed in successfully, now register in our backend
+            await apiRequest('POST', '/api/users', {
+              email: data.email,
+              username: data.username,
+              password: 'supabase-managed', // We don't store the actual password
+              userId: authResult.user.id,
+            });
+            
+            toast({
+              title: 'Account recovered',
+              description: 'Your account has been restored. You can now continue using the app.',
+            });
+            navigate('/dashboard');
+            return;
+          }
+        } catch (signInError: any) {
+          console.error('Error during account recovery:', signInError);
+        }
+      }
+      
+      // Show original error if recovery failed or for other errors
       toast({
         title: 'Registration failed',
         description: error.message || 'Please check your information and try again.',
