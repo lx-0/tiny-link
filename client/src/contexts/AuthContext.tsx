@@ -18,7 +18,7 @@ type AuthContextType = {
 };
 
 // Create the context with default values
-const AuthContext = createContext<AuthContextType>({
+export const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: true,
   isAuthenticated: false,
@@ -240,11 +240,5 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Create a custom hook to use the auth context
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}
+// Hook moved to separate file in hooks/useAuth.ts
+// to avoid React hot refresh issues

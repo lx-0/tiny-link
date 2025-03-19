@@ -4,7 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import NormalizedLink from '@/components/ui/normalized-link';
 
 import Navbar from '@/components/Navbar';
