@@ -8,15 +8,15 @@ if (!process.env.SUPABASE_DATABASE_URL) {
   );
 }
 
-// Get schema from environment variable or default to 'urlshortener'
-const schemaName = process.env.DB_SCHEMA || 'urlshortener';
+// Get schema from environment variable or default to 'custom'
+const schemaName = process.env.DB_SCHEMA || 'custom';
 
 export const pool = new pg.Pool({ connectionString: process.env.SUPABASE_DATABASE_URL });
 
 // Create and switch to schema
-pool.on('connect', (client) => {
-  client.query(`CREATE SCHEMA IF NOT EXISTS ${schemaName};`);
-  client.query(`SET search_path TO ${schemaName};`);
+pool.on('connect', async (client) => {
+  await client.query(`CREATE SCHEMA IF NOT EXISTS ${schemaName};`);
+  await client.query(`SET search_path TO ${schemaName}, public;`);
 });
 
 export const db = drizzle(pool, { schema });

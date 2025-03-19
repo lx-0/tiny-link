@@ -11,8 +11,8 @@ if (!process.env.SUPABASE_DATABASE_URL) {
   process.exit(1);
 }
 
-// Execute the drizzle-kit push command with the correct database URL
-exec('DATABASE_URL="$SUPABASE_DATABASE_URL" npx drizzle-kit push', (error, stdout, stderr) => {
+// Execute the drizzle-kit push command with the correct database URL and schema
+exec('DATABASE_URL="$SUPABASE_DATABASE_URL" DB_SCHEMA="custom" npx drizzle-kit push --schema=custom', (error, stdout, stderr) => {
   if (error) {
     console.error(`Error during database initialization: ${error.message}`);
     return;

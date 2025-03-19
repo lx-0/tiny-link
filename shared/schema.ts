@@ -2,7 +2,11 @@ import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const users = pgTable("users", {
+// Get schema from environment variable or default to 'tinylink'
+const schemaName = process.env.DB_SCHEMA || 'tinylink';
+
+// Create custom schema tables
+export const users = pgTable(`${schemaName}.users`, {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
@@ -10,7 +14,7 @@ export const users = pgTable("users", {
   userId: text("user_id").notNull(), // supabase user ID
 });
 
-export const urls = pgTable("urls", {
+export const urls = pgTable(`${schemaName}.urls`, {
   id: serial("id").primaryKey(),
   originalUrl: text("original_url").notNull(),
   shortCode: text("short_code").notNull().unique(),

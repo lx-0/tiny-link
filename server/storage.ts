@@ -142,8 +142,8 @@ export class DatabaseStorage implements IStorage {
 // Create a test user and URL in the database if needed
 async function setupInitialData() {
   try {
-    // Get schema name from environment variable or default to 'urlshortener'
-    const schemaName = process.env.DB_SCHEMA || 'urlshortener';
+    // Get schema name from environment variable or default to 'tinylink'
+    const schemaName = process.env.DB_SCHEMA || 'tinylink';
     console.log(`Setting up initial data in schema "${schemaName}"...`);
     
     // Schema creation is now handled in server/db.ts on pool connect
