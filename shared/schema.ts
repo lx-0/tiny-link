@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgSchema, pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -6,8 +6,11 @@ import { z } from "zod";
 const schemaName = process.env.DB_SCHEMA || 'tinylink';
 console.log(`Using schema: ${schemaName} for database tables`);
 
-// Create custom schema tables with explicit schema qualification
-export const users = pgTable(`${schemaName}.users`, {
+// Create a schema reference first
+export const tinylinkSchema = pgSchema(schemaName);
+
+// Create custom schema tables with proper schema binding
+export const users = tinylinkSchema.table('users', {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
@@ -15,7 +18,7 @@ export const users = pgTable(`${schemaName}.users`, {
   userId: text("user_id").notNull(), // supabase user ID
 });
 
-export const urls = pgTable(`${schemaName}.urls`, {
+export const urls = tinylinkSchema.table('urls', {
   id: serial("id").primaryKey(),
   originalUrl: text("original_url").notNull(),
   shortCode: text("short_code").notNull().unique(),

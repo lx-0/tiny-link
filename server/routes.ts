@@ -109,7 +109,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!user) {
         // For debugging, list all available users
-        const allUsers = Array.from(storage.getAllUsers().values());
+        const allUsers = await storage.getAllUsers();
         console.log('DEBUG: Available users:', allUsers.map(u => ({ 
           id: u.id, 
           userId: u.userId, 
