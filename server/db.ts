@@ -27,14 +27,6 @@ pool.on('error', (err) => {
   process.exit(-1);
 });
 
-// Set search path on connect
-pool.on('connect', async (client) => {
-  try {
-    console.log(`Setting search path to ${schemaName}, public...`);
-    await client.query(`SET search_path TO ${schemaName}, public;`);
-  } catch (error) {
-    console.error('Error in pool connect handler:', error);
-  }
-});
+// No need to set search path as we'll use fully qualified table names
 
 export const db = drizzle(pool, { schema });
