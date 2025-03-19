@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { Url } from '@shared/schema';
 
 import StatCard from '@/components/StatCard';
@@ -186,14 +186,16 @@ export default function Dashboard() {
       }
     });
   
-  // Handle errors
-  if (urlsError) {
-    toast({
-      title: 'Failed to load URLs',
-      description: 'Please refresh the page and try again.',
-      variant: 'destructive',
-    });
-  }
+  // Handle errors in useEffect to avoid render loops
+  useEffect(() => {
+    if (urlsError) {
+      toast({
+        title: 'Failed to load URLs',
+        description: 'Please refresh the page and try again.',
+        variant: 'destructive',
+      });
+    }
+  }, [urlsError, toast]);
   
   return (
     <>
