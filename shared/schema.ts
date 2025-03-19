@@ -2,8 +2,9 @@ import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Get schema from environment variable or default to 'custom'
-const schemaName = process.env.DB_SCHEMA || 'custom';
+// Get schema from environment variable or default to 'tinylink'
+const schemaName = process.env.DB_SCHEMA || 'tinylink';
+console.log(`Using schema: ${schemaName} for database tables`);
 
 // Create custom schema tables
 export const users = pgTable(`${schemaName}.users`, {
