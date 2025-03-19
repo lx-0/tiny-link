@@ -34,14 +34,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
   const [_, setLocation] = useLocation();
   
-  // Helper to navigate without causing location format issues
+  // Simple helper to navigate using wouter
   const navigate = (path: string, options = {}) => {
-    // Import and use our safe navigation utility
     import('@/lib/utils').then(({ safeNavigate }) => {
-      // Explicitly normalize the path to prevent invalid href issues
-      const cleanPath = path.replace(/^\/+/, '');
-      const normalizedPath = '/' + cleanPath;
-      safeNavigate(normalizedPath, options);
+      safeNavigate(path, options);
     });
   };
 
@@ -119,11 +115,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         description: 'You have been signed out of your account.',
       });
       
-      // After a small delay to let the logout complete fully
-      setTimeout(() => {
-        // Use our navigate helper which correctly normalizes paths
-        navigate('/login', { forceReload: true });
-      }, 100);
+      // Direct navigation to login page
+      navigate('/login');
     } catch (error) {
       toast({
         title: 'Error signing out',

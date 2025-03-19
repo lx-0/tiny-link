@@ -29,14 +29,10 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   
-  // Helper to navigate safely to prevent href errors
+  // Simple navigation helper
   const navigate = (path: string) => {
-    // Import safeNavigate to handle all URL edge cases properly
     import('@/lib/utils').then(({ safeNavigate }) => {
-      // Use safeNavigate with explicit path cleaning to prevent any href errors
-      const cleanPath = path.replace(/^\/+/, '');
-      const normalizedPath = '/' + cleanPath;
-      safeNavigate(normalizedPath);
+      safeNavigate(path);
     });
   };
 
@@ -60,11 +56,8 @@ export default function Login() {
         description: 'Welcome back to TinyLink!',
       });
       
-      // Wait a brief moment before redirecting to ensure user state is updated
-      setTimeout(() => {
-        // Navigate to dashboard after successful login - ensure we use a relative path
-        navigate('/dashboard');
-      }, 100);
+      // Navigate directly to dashboard
+      navigate('/dashboard');
     } catch (error: any) {
       toast({
         title: 'Login failed',
