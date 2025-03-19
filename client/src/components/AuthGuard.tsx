@@ -12,7 +12,7 @@ export default function AuthGuard({
   requireAuth?: boolean,
   redirectTo?: string
 }) {
-  const [_, navigate] = useLocation();
+  const [location, navigate] = useLocation();
   const { user, isLoading, isAuthenticated } = useAuth();
   
   // Handle authentication logic
@@ -21,11 +21,13 @@ export default function AuthGuard({
     if (!isLoading) {      
       // Unauthenticated user trying to access protected route
       if (requireAuth && !isAuthenticated) {
+        // Use only the path portion for navigation
         navigate(redirectTo);
       }
       
       // Authenticated user trying to access auth-only route (login/register)
       if (!requireAuth && isAuthenticated) {
+        // Use only the path portion for navigation
         navigate('/dashboard');
       }
     }

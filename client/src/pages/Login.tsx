@@ -48,15 +48,17 @@ export default function Login() {
         description: 'Welcome back to TinyLink!',
       });
       
-      // Navigate to dashboard after successful login
-      navigate('/dashboard');
+      // Wait a brief moment before redirecting to ensure user state is updated
+      setTimeout(() => {
+        // Navigate to dashboard after successful login - ensure we use a relative path
+        navigate('/dashboard');
+      }, 100);
     } catch (error: any) {
       toast({
         title: 'Login failed',
         description: error.message || 'Please check your credentials and try again.',
         variant: 'destructive',
       });
-    } finally {
       setIsLoading(false);
     }
   };
