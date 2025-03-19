@@ -10,15 +10,22 @@ async function setupDatabase() {
       process.exit(1);
     }
     
-    console.log('Connecting to database...');
+    // Get schema name from environment or use default 'urlshortener'
+    const schemaName = process.env.DB_SCHEMA || 'urlshortener';
+    
+    console.log(`Connecting to database using schema: ${schemaName}...`);
     const pool = new pg.Pool({ connectionString: process.env.SUPABASE_DATABASE_URL });
     const db = drizzle(pool);
     
-    console.log('Creating tables...');
+    // First create schema if it doesn't exist
+    console.log(`Creating schema "${schemaName}" if it doesn't exist...`);
+    await db.execute(sql`CREATE SCHEMA IF NOT EXISTS ${sql.raw(schemaName)}`);
     
-    // Create users table
+    console.log(`Creating tables in schema "${schemaName}"...`);
+    
+    // Create users table in the specified schema
     await db.execute(sql`
-      CREATE TABLE IF NOT EXISTS "users" (
+      CREATE TABLE IF NOT EXISTS ${sql.raw(`"${schemaName}"."users"`)} (
         "id" SERIAL PRIMARY KEY,
         "username" TEXT NOT NULL UNIQUE,
         "password" TEXT NOT NULL,
@@ -27,9 +34,9 @@ async function setupDatabase() {
       )
     `);
     
-    // Create urls table
+    // Create urls table in the specified schema
     await db.execute(sql`
-      CREATE TABLE IF NOT EXISTS "urls" (
+      CREATE TABLE IF NOT EXISTS ${sql.raw(`"${schemaName}"."urls"`)} (
         "id" SERIAL PRIMARY KEY,
         "original_url" TEXT NOT NULL,
         "short_code" TEXT NOT NULL UNIQUE,

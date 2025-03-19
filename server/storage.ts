@@ -142,6 +142,13 @@ export class DatabaseStorage implements IStorage {
 // Create a test user and URL in the database if needed
 async function setupInitialData() {
   try {
+    // Get schema name from environment variable or default to 'urlshortener'
+    const schemaName = process.env.DB_SCHEMA || 'urlshortener';
+    console.log(`Setting up initial data in schema "${schemaName}"...`);
+    
+    // Before doing anything, try to create the schema if it doesn't exist
+    await db.execute(sql`CREATE SCHEMA IF NOT EXISTS ${sql.raw(schemaName)}`);
+    
     // Check if testuser exists
     const existingUser = await db
       .select()
@@ -160,11 +167,11 @@ async function setupInitialData() {
       };
       
       const [insertedUser] = await db.insert(users).values(testUser).returning();
-      console.log('DEBUG: Created test user', insertedUser);
+      console.log(`DEBUG: Created test user in "${schemaName}" schema`, insertedUser);
       testUserId = insertedUser.id;
     } else {
       testUserId = existingUser[0].id;
-      console.log('DEBUG: Using existing test user', existingUser[0]);
+      console.log(`DEBUG: Using existing test user from "${schemaName}" schema`, existingUser[0]);
     }
     
     // Check if test URL exists
@@ -196,10 +203,10 @@ async function setupInitialData() {
           .from(urls)
           .where(eq(urls.id, insertedUrl.id));
           
-        console.log('DEBUG: Created test URL', updatedUrl);
+        console.log(`DEBUG: Created test URL in "${schemaName}" schema`, updatedUrl);
       }
     } else {
-      console.log('DEBUG: Using existing test URL', existingUrl[0]);
+      console.log(`DEBUG: Using existing test URL from "${schemaName}" schema`, existingUrl[0]);
     }
   } catch (error) {
     console.error('Error setting up initial data:', error);
