@@ -116,9 +116,10 @@ export default function LandingPage() {
                 <Button
                   size="lg"
                   variant="secondary"
-                  onClick={() =>
-                    navigate(isAuthenticated ? "/app/dashboard" : "/app/login")
-                  }
+                  onClick={() => {
+                    window.scrollTo(0, 0);
+                    navigate(isAuthenticated ? "/app/dashboard" : "/app/login");
+                  }}
                 >
                   {isAuthenticated ? "Go to Dashboard" : "Sign In"}
                 </Button>
@@ -127,11 +128,44 @@ export default function LandingPage() {
                     size="lg"
                     variant="outline"
                     className="bg-transparent border-white hover:bg-white hover:text-primary"
-                    onClick={() => navigate("/app/register")}
+                    onClick={() => {
+                      window.scrollTo(0, 0);
+                      navigate("/app/register");
+                    }}
                   >
                     Create Account
                   </Button>
                 )}
+              </div>
+              
+              <div className="flex mt-4 text-sm space-x-4">
+                <span 
+                  className="text-white/80 hover:text-white cursor-pointer transition-colors"
+                  onClick={() => {
+                    window.scrollTo(0, 0);
+                    navigate("/about");
+                  }}
+                >
+                  About
+                </span>
+                <span 
+                  className="text-white/80 hover:text-white cursor-pointer transition-colors"
+                  onClick={() => {
+                    window.scrollTo(0, 0);
+                    navigate("/privacy");
+                  }}
+                >
+                  Privacy
+                </span>
+                <span 
+                  className="text-white/80 hover:text-white cursor-pointer transition-colors"
+                  onClick={() => {
+                    window.scrollTo(0, 0);
+                    navigate("/terms");
+                  }}
+                >
+                  Terms
+                </span>
               </div>
             </div>
 
@@ -275,9 +309,10 @@ export default function LandingPage() {
           <div className="flex flex-wrap gap-4 justify-center">
             <Button
               size="lg"
-              onClick={() =>
-                navigate(isAuthenticated ? "/app/dashboard" : "/app/register")
-              }
+              onClick={() => {
+                window.scrollTo(0, 0);
+                navigate(isAuthenticated ? "/app/dashboard" : "/app/register");
+              }}
             >
               {isAuthenticated
                 ? "Go to Dashboard"
@@ -287,7 +322,10 @@ export default function LandingPage() {
               <Button
                 size="lg"
                 variant="outline"
-                onClick={() => navigate("/app/login")}
+                onClick={() => {
+                  window.scrollTo(0, 0);
+                  navigate("/app/login");
+                }}
               >
                 Log In
               </Button>

@@ -12,22 +12,22 @@ export default function Footer() {
           {/* Links */}
           <div className="flex space-x-6 mb-4 md:mb-0">
             <Link href="/about">
-              <span className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer">
+              <span className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
                 About
               </span>
             </Link>
             <Link href="/terms">
-              <span className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer">
+              <span className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
                 Terms
               </span>
             </Link>
             <Link href="/privacy">
-              <span className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer">
+              <span className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
                 Privacy
               </span>
             </Link>
             <Link href={isAuthenticated ? "/app/dashboard" : "/app/login"}>
-              <span className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer">
+              <span className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
                 Dashboard
               </span>
             </Link>
