@@ -509,15 +509,23 @@ export default function LandingPage() {
                     e.preventDefault();
                     if (url) handleQuickCreate();
                   }} className="space-y-4">
-                    <div>
+                    <div className="flex flex-col">
                       <Input
                         id="url"
-                        className="text-sm font-mono border-2 py-5 focus-visible:ring-primary"
+                        className={`text-sm font-mono border-2 py-5 focus-visible:ring-primary ${urlError ? "border-red-500" : ""}`}
                         placeholder="https://example.com/very/long/url/that/needs/shortening"
                         value={url}
-                        onChange={(e) => setUrl(e.target.value)}
+                        onChange={(e) => {
+                          setUrl(e.target.value);
+                          setUrlError("");
+                        }}
                         readOnly={showResult}
                       />
+                      {urlError && (
+                        <p className="text-xs text-red-500 mt-1">
+                          {urlError}
+                        </p>
+                      )}
                     </div>
                     <div className="flex gap-2">
                       <Button 
@@ -637,7 +645,7 @@ export default function LandingPage() {
                                 id="shortUrl"
                                 value={`${baseUrl}/${shortCode}`}
                                 readOnly
-                                className="text-sm font-mono bg-white border-2 py-3 focus-visible:ring-primary flex-1 rounded-r-none"
+                                className="text-sm font-mono bg-white border-2 py-5 focus-visible:ring-primary flex-1 rounded-r-none"
                               />
                               <Button 
                                 variant="outline" 
