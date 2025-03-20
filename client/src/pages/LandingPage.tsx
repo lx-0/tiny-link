@@ -54,6 +54,7 @@ export default function LandingPage() {
   const { toast } = useToast();
   const { copy } = useClipboard();
   const [url, setUrl] = useState("");
+  const [urlError, setUrlError] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [shortUrl, setShortUrl] = useState("");
@@ -195,12 +196,11 @@ export default function LandingPage() {
     // Clear previous errors
     setCustomShortCodeError("");
     
+    // Clear previous errors
+    setUrlError("");
+    
     if (!url) {
-      toast({
-        title: "URL is required",
-        description: "Please enter a URL to shorten",
-        variant: "destructive",
-      });
+      setUrlError("URL is required");
       return;
     }
 
@@ -215,6 +215,27 @@ export default function LandingPage() {
       !originalUrl.startsWith("https://")
     ) {
       originalUrl = `https://${originalUrl}`;
+    }
+    
+    // Validate if URL has a valid domain with TLD
+    try {
+      const urlObj = new URL(originalUrl);
+      const hostnameParts = urlObj.hostname.split('.');
+      
+      // Check if there's at least a domain and a TLD (minimum 2 parts)
+      if (hostnameParts.length < 2) {
+        setUrlError("Please enter a valid URL with a domain and TLD (e.g., example.com)");
+        return;
+      }
+      
+      // Check if TLD is not empty
+      if (hostnameParts[hostnameParts.length - 1].length === 0) {
+        setUrlError("Please enter a valid URL with a proper TLD (e.g., .com, .org)");
+        return;
+      }
+    } catch (e) {
+      setUrlError("Please enter a valid URL");
+      return;
     }
 
     // Validate custom shortcode if provided
@@ -568,7 +589,7 @@ export default function LandingPage() {
                           {/* Single URL display with copy button */}
                           {isAuthenticated ? (
                             <div className="flex items-center w-full">
-                              <div className="whitespace-nowrap text-sm font-mono bg-gray-100 px-2 py-3 rounded-l-md border-y border-l overflow-hidden text-ellipsis" style={{maxWidth: '40%'}}>
+                              <div className="whitespace-nowrap text-sm font-mono bg-gray-100 px-2 py-5 rounded-l-md border-y border-l overflow-hidden text-ellipsis" style={{maxWidth: '40%'}}>
                                 {baseUrl}/
                               </div>
                               <form 
@@ -589,7 +610,7 @@ export default function LandingPage() {
                                       // Regenerate QR code when shortcode changes
                                       generateQRCode(`${baseUrl}/${e.target.value}`);
                                     }}
-                                    className={`text-sm font-mono border-2 py-2 rounded-none focus-visible:ring-primary w-full ${shortCodeError ? "border-red-500" : ""}`}
+                                    className={`text-sm font-mono border-2 py-5 rounded-none focus-visible:ring-primary w-full ${shortCodeError ? "border-red-500" : ""}`}
                                     placeholder="custom-code"
                                   />
                                   {shortCodeError && (
@@ -661,7 +682,7 @@ export default function LandingPage() {
                         {isAuthenticated && (
                           <div className="flex flex-col space-y-4">
                             <div className="flex items-center">
-                              <div className="whitespace-nowrap overflow-hidden text-ellipsis text-sm font-mono bg-gray-100 px-2 py-3 rounded-l-md border-y border-l" style={{maxWidth: '40%'}}>
+                              <div className="whitespace-nowrap overflow-hidden text-ellipsis text-sm font-mono bg-gray-100 px-2 py-5 rounded-l-md border-y border-l" style={{maxWidth: '40%'}}>
                                 {baseUrl}/
                               </div>
                               <div className="flex-grow flex flex-col">
@@ -673,7 +694,7 @@ export default function LandingPage() {
                                     setCustomShortCodeError("");
                                   }}
                                   placeholder="custom-code (optional)"
-                                  className={`text-sm font-mono border-2 py-2 rounded-l-none focus-visible:ring-primary w-full ${customShortCodeError ? "border-red-500" : ""}`}
+                                  className={`text-sm font-mono border-2 py-5 rounded-l-none focus-visible:ring-primary w-full ${customShortCodeError ? "border-red-500" : ""}`}
                                 />
                                 {customShortCodeError && (
                                   <p className="text-xs text-red-500 mt-1">
@@ -685,20 +706,7 @@ export default function LandingPage() {
                           </div>
                         )}
                       
-                        <Button
-                          type="submit"
-                          className="w-full py-6"
-                          disabled={isCreating || !url}
-                        >
-                          {isCreating ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Creating...
-                            </>
-                          ) : (
-                            "Shorten URL"
-                          )}
-                        </Button>
+
                       </div>
 
                       {!isAuthenticated && (
