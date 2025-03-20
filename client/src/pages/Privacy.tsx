@@ -1,6 +1,10 @@
+import SimpleNav from "@/components/SimpleNav";
+
 export default function Privacy() {
   return (
-    <div className="container mx-auto px-4 py-12 max-w-4xl">
+    <>
+      <SimpleNav />
+      <div className="container mx-auto px-4 py-12 max-w-4xl">
       <h1 className="text-4xl font-bold mb-8 text-center">Privacy Policy</h1>
       
       <div className="prose prose-lg max-w-none">
@@ -121,5 +125,6 @@ export default function Privacy() {
         </p>
       </div>
     </div>
+    </>
   );
 }
