@@ -11,6 +11,9 @@ import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import RedirectPage from "@/pages/RedirectPage";
 import LandingPage from "@/pages/LandingPage";
+import About from "@/pages/About";
+import Terms from "@/pages/Terms";
+import Privacy from "@/pages/Privacy";
 import { AuthProvider } from "@/contexts/AuthContext";
 import AuthGuard from "@/components/AuthGuard";
 
@@ -77,6 +80,25 @@ function Router() {
             <Dashboard />
           </AuthGuard>
         </AppLayout>
+      </Route>
+      
+      {/* Static pages */}
+      <Route path="/about">
+        <SimpleLayout>
+          <About />
+        </SimpleLayout>
+      </Route>
+      
+      <Route path="/terms">
+        <SimpleLayout>
+          <Terms />
+        </SimpleLayout>
+      </Route>
+      
+      <Route path="/privacy">
+        <SimpleLayout>
+          <Privacy />
+        </SimpleLayout>
       </Route>
       
       {/* Redirect not-found page */}

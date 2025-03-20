@@ -1,27 +1,53 @@
 import { FaGithub } from "react-icons/fa";
+import { Link } from "wouter";
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-100 py-4 mt-auto border-t">
-      <div className="container mx-auto px-4 flex items-center justify-center">
-        <div className="flex items-center space-x-1 text-gray-600">
-          <a 
-            href="https://github.com/lx-0/tinylink.git" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex items-center hover:text-gray-800 transition-colors"
-          >
-            <FaGithub className="h-5 w-5" />
-          </a>
-          <span>Created by </span>
-          <a 
-            href="https://github.com/lx-0" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="font-medium hover:underline text-gray-800"
-          >
-            @lx-0
-          </a>
+    <footer className="bg-gray-100 py-6 mt-auto border-t">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col md:flex-row justify-between items-center">
+          {/* Links */}
+          <div className="flex space-x-6 mb-4 md:mb-0">
+            <Link href="/about">
+              <a className="text-gray-600 hover:text-gray-800 transition-colors">About</a>
+            </Link>
+            <Link href="/terms">
+              <a className="text-gray-600 hover:text-gray-800 transition-colors">Terms</a>
+            </Link>
+            <Link href="/privacy">
+              <a className="text-gray-600 hover:text-gray-800 transition-colors">Privacy</a>
+            </Link>
+          </div>
+          
+          {/* Social & Creator */}
+          <div className="flex items-center space-x-4 text-gray-600">
+            <a
+              href="https://github.com/lx-0/tiny-link.git"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center hover:text-gray-800 transition-colors"
+              aria-label="GitHub Repository"
+            >
+              <FaGithub className="h-5 w-5" />
+              <span className="ml-2 hidden sm:inline">GitHub</span>
+            </a>
+            <span className="text-gray-400">|</span>
+            <div>
+              <span>Created by </span>
+              <a
+                href="https://github.com/lx-0"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium hover:underline text-gray-800"
+              >
+                @lx-0
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div className="mt-4 text-center text-sm text-gray-500">
+          &copy; {new Date().getFullYear()} TinyLink - An open-source URL shortener. All rights reserved.
         </div>
       </div>
     </footer>

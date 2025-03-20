@@ -5,7 +5,8 @@
 ![TinyLink](https://img.shields.io/badge/TinyLink-v1.0.0-blue?style=for-the-badge&logo=link)
 [![TypeScript](https://img.shields.io/badge/TypeScript-4.9.5-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18.2.0-blue?style=for-the-badge&logo=react)](https://reactjs.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15.0-blue?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)
+[![Drizzle ORM](https://img.shields.io/badge/Drizzle_ORM-0.29.0-blue?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNMjU2IDhDMTE5LjA0MyA4IDggMTE5LjA4IDggMjU2YzAgMTM2Ljk5NyAxMTEuMDQzIDI0OCAyNDggMjQ4czI0OC0xMTEuMDAzIDI0OC0yNDhDNTA0IDExOS4wOCAzOTIuOTU3IDggMjU2IDh6bTAgMTEwYzIzLjE5NiAwIDQyIDE4LjgwNCA0MiA0MnMtMTguODA0IDQyLTQyIDQyLTQyLTE4LjgwNC00Mi00MiAxOC44MDQtNDIgNDItNDJ6bTU2IDI1NGMwIDYuNjI3LTUuMzczIDEyLTEyIDEyaC04OGMtNi42MjcgMC0xMi01LjM3My0xMi0xMnYtMjRjMC02LjYyNyA1LjM3My0xMiAxMi0xMmgxMnYtNjRoLTEyYy02LjYyNyAwLTEyLTUuMzczLTEyLTEydi0yNGMwLTYuNjI3IDUuMzczLTEyIDEyLTEyaDY0YzYuNjI3IDAgMTIgNS4zNzMgMTIgMTJ2MTAwaDEyYzYuNjI3IDAgMTIgNS4zNzMgMTIgMTJ2MjR6Ii8+PC9zdmc+)](https://orm.drizzle.team/)
+[![Supabase](https://img.shields.io/badge/Supabase-Auth-blue?style=for-the-badge&logo=supabase)](https://supabase.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 **Your privacy-focused, self-hosted alternative to commercial URL shorteners.**
@@ -41,7 +42,7 @@ TinyLink is a **100% open-source alternative** to commercial URL shortening serv
 
 ```bash
 # Clone the repo
-git clone https://github.com/lx-0/tinylink.git
+git clone https://github.com/lx-0/tiny-link.git
 cd tinylink
 
 # Install dependencies
@@ -58,7 +59,7 @@ npm run dev
 
 ```bash
 # Clone the repo
-git clone https://github.com/lx-0/tinylink.git
+git clone https://github.com/lx-0/tiny-link.git
 cd tinylink
 
 # Copy environment variables for development
@@ -72,7 +73,7 @@ docker-compose -f docker-compose.dev.yml up
 
 ```bash
 # Clone the repo
-git clone https://github.com/lx-0/tinylink.git
+git clone https://github.com/lx-0/tiny-link.git
 cd tinylink
 
 # Copy and edit production environment variables
