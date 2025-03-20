@@ -197,13 +197,13 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
         </div>
       </div>
       
-      {/* Action buttons row - fixed at bottom */}
-      <div className="flex bg-gray-50 border-t border-gray-200 divide-x divide-gray-200">
+      {/* Action buttons row - without border overlap */}
+      <div className="flex">
         <Dialog onOpenChange={(open) => {
           if (open) handleQrCodeDialogOpen();
         }}>
           <DialogTrigger asChild>
-            <button className="flex-1 p-2 flex items-center justify-center text-sm text-gray-700 hover:bg-gray-100">
+            <button className="flex-1 py-3 flex items-center justify-center text-sm text-gray-700 hover:bg-gray-100 border-t border-r border-gray-200">
               <QrCode className="h-4 w-4 mr-2" />
               QR Code
             </button>
@@ -268,7 +268,7 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
         
         <button 
           onClick={() => onEdit(url)}
-          className="flex-1 p-2 flex items-center justify-center text-sm text-gray-700 hover:bg-gray-100"
+          className="flex-1 py-3 flex items-center justify-center text-sm text-gray-700 hover:bg-gray-100 border-t border-r border-gray-200"
         >
           <Edit className="h-4 w-4 mr-2" />
           Edit
@@ -276,7 +276,7 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
         
         <button 
           onClick={() => onDelete(url)}
-          className="flex-1 p-2 flex items-center justify-center text-sm text-red-600 hover:bg-red-50"
+          className="flex-1 py-3 flex items-center justify-center text-sm text-red-600 hover:bg-red-50 border-t border-gray-200"
         >
           <Trash2 className="h-4 w-4 mr-2" />
           Delete
