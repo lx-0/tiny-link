@@ -6,6 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+    env_file: .env.development
     container_name: tinylink
     ports:
       - "5000:5000"
