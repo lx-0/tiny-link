@@ -81,8 +81,8 @@ function Router() {
         </SimpleLayout>
       </Route>
       
-      {/* Handle shortened URLs - must check after /app routes */}
-      <Route path="/:shortCode">
+      {/* Handle shortened URLs */}
+      <Route path="/r/:shortCode">
         <SimpleLayout>
           <RedirectPage />
         </SimpleLayout>
