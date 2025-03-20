@@ -464,7 +464,10 @@ export default function LandingPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-4">
-                  <div className="space-y-4">
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    if (url) handleQuickCreate();
+                  }} className="space-y-4">
                     <div>
                       <Input
                         id="url"
@@ -480,7 +483,7 @@ export default function LandingPage() {
                       </svg>
                       <span>Enter your link above — HTTPS is added automatically</span>
                     </div>
-                  </div>
+                  </form>
                 </CardContent>
 
                 <CardHeader className="bg-gray-50 border-t border-b py-3 mt-2">
@@ -596,8 +599,8 @@ export default function LandingPage() {
                         )}
                       
                         <Button
+                          type="submit"
                           className="w-full py-6"
-                          onClick={handleQuickCreate}
                           disabled={isCreating || !url}
                         >
                           {isCreating ? (
