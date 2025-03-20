@@ -507,11 +507,17 @@ export default function LandingPage() {
                         <div className="flex flex-col space-y-4">
                           {/* Single URL display with copy button */}
                           {isAuthenticated ? (
-                            <div className="flex flex-wrap items-center gap-2">
-                              <div className="flex items-center flex-grow min-w-0">
-                                <div className="whitespace-nowrap text-sm font-mono bg-gray-100 px-2 py-3 rounded-l-md border-y border-l overflow-hidden text-ellipsis" style={{maxWidth: '40%'}}>
-                                  {baseUrl}/
-                                </div>
+                            <div className="flex items-center w-full">
+                              <div className="whitespace-nowrap text-sm font-mono bg-gray-100 px-2 py-3 rounded-l-md border-y border-l overflow-hidden text-ellipsis" style={{maxWidth: '40%'}}>
+                                {baseUrl}/
+                              </div>
+                              <form 
+                                className="flex-1 flex"
+                                onSubmit={(e) => {
+                                  e.preventDefault();
+                                  if (shortCode) handleUpdateShortcode();
+                                }}
+                              >
                                 <Input
                                   id="shortCode"
                                   value={shortCode}
@@ -520,44 +526,35 @@ export default function LandingPage() {
                                     // Regenerate QR code when shortcode changes
                                     generateQRCode(`${baseUrl}/${e.target.value}`);
                                   }}
-                                  className="text-sm font-mono border-2 py-2 rounded-l-none focus-visible:ring-primary w-auto flex-grow"
+                                  className="text-sm font-mono border-2 py-2 rounded-none focus-visible:ring-primary flex-1"
                                   placeholder="custom-code"
                                 />
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Button 
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={handleUpdateShortcode}
-                                  disabled={!shortCode}
-                                  title="Update shortcode"
-                                >
-                                  <Pencil className="h-4 w-4 mr-1" />
-                                  Update
-                                </Button>
                                 <Button 
                                   variant="outline" 
                                   size="icon"
+                                  type="button"
                                   onClick={handleCopy}
                                   title="Copy to clipboard"
+                                  className="ml-0 rounded-l-none rounded-r-md"
                                 >
                                   <Copy className="h-4 w-4" />
                                 </Button>
-                              </div>
+                              </form>
                             </div>
                           ) : (
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center w-full">
                               <Input
                                 id="shortUrl"
                                 value={`${baseUrl}/${shortCode}`}
                                 readOnly
-                                className="text-sm font-mono bg-white border-2 py-3 focus-visible:ring-primary flex-1"
+                                className="text-sm font-mono bg-white border-2 py-3 focus-visible:ring-primary flex-1 rounded-r-none"
                               />
                               <Button 
                                 variant="outline" 
                                 size="icon"
                                 onClick={handleCopy}
                                 title="Copy to clipboard"
+                                className="ml-0 rounded-l-none"
                               >
                                 <Copy className="h-4 w-4" />
                               </Button>
