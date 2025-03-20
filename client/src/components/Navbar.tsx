@@ -82,10 +82,10 @@ export default function Navbar() {
           ) : (
             <div className="flex items-center gap-2">
               <Button variant="ghost" className="text-gray-700" asChild>
-                <NormalizedLink href="/login">Log in</NormalizedLink>
+                <NormalizedLink href="/app/login">Log in</NormalizedLink>
               </Button>
               <Button className="bg-primary text-white hover:bg-blue-600" asChild>
-                <NormalizedLink href="/register">Sign up</NormalizedLink>
+                <NormalizedLink href="/app/register">Sign up</NormalizedLink>
               </Button>
             </div>
           )}
