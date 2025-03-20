@@ -141,154 +141,146 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
   };
   
   return (
-    <li>
-      <div className="block hover:bg-gray-50">
-        <div className="px-4 py-4 sm:px-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="ml-1 flex flex-col max-w-[70%]">
-                <div className="text-md font-medium text-primary truncate">
-                  {url.originalUrl}
-                </div>
-                <div className="mt-1 flex items-center space-x-2">
-                  <Badge variant={url.isActive ? "default" : "outline"}>
-                    {url.isActive ? 'Active' : 'Inactive'}
-                  </Badge>
-                  <span className="text-sm text-gray-500">
-                    Created {formattedDate}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center">
-              <div className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-blue-100 text-blue-800">
-                <svg className="-ml-0.5 mr-1.5 h-4 w-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                {url.clicks} clicks
-              </div>
-            </div>
-          </div>
-          <div className="mt-3 flex flex-col sm:flex-row sm:justify-between">
-            <div className="flex items-center">
-              <div className="flex items-center px-3 py-2 text-sm font-medium rounded-md max-w-full">
-                <div className="text-gray-900 truncate max-w-[80%]">
-                  Shortened URL: 
-                  <a 
-                    href={fullShortUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="ml-1 font-medium text-primary hover:text-blue-600 truncate"
-                    onClick={(e) => {
-                      // Prevent default to avoid navigation issues
-                      e.preventDefault();
-                      window.open(fullShortUrl, '_blank');
-                    }}
-                  >
-                    {fullShortUrl}
-                  </a>
-                </div>
-                <button 
-                  onClick={handleCopy}
-                  className="ml-2 p-1 text-gray-500 hover:text-primary"
-                  aria-label="Copy to clipboard"
-                >
-                  <Clipboard className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-            <div className="mt-2 flex flex-wrap gap-2 items-center text-sm sm:mt-0">
-              <Dialog onOpenChange={(open) => {
-                if (open) handleQrCodeDialogOpen();
-              }}>
-                <DialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                  >
-                    <QrCode className="mr-2 h-4 w-4" />
-                    QR Code
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>QR Code for {url.shortCode}</DialogTitle>
-                    <DialogDescription>
-                      Scan this QR code to access your shortened URL. You can also download it in different formats.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="flex flex-col items-center justify-center py-4">
-                    <div className="border border-gray-200 rounded-lg p-2 bg-white">
-                      {isLoadingQrCode && (
-                        <div className="w-64 h-64 flex items-center justify-center">
-                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                        </div>
-                      )}
-                      
-                      {qrCodeError && (
-                        <div className="w-64 h-64 flex items-center justify-center text-center p-4">
-                          <div className="text-red-500">
-                            <p className="font-medium">Error loading QR code</p>
-                            <p className="text-sm mt-2">{qrCodeError}</p>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {qrCodeSrc && !isLoadingQrCode && !qrCodeError && (
-                        <img 
-                          src={qrCodeSrc} 
-                          alt={`QR Code for ${url.shortCode}`} 
-                          className="w-64 h-64"
-                        />
-                      )}
-                    </div>
-                    <div className="mt-4 text-center">
-                      <p className="text-sm text-gray-500 mb-2">This QR code links to:</p>
-                      <p className="text-sm font-medium text-primary">{fullShortUrl}</p>
-                    </div>
-                  </div>
-                  <div className="flex justify-center space-x-4 mt-4">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => downloadQrCode('svg')}
-                      disabled={isLoadingQrCode}
-                    >
-                      Download SVG
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => downloadQrCode('png')}
-                      disabled={isLoadingQrCode}
-                    >
-                      Download PNG
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-              
-              <Button
-                onClick={() => onEdit(url)}
-                variant="outline"
-                size="sm"
-              >
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
-              </Button>
-              
-              <Button
-                onClick={() => onDelete(url)}
-                variant="outline"
-                size="sm"
-                className="text-red-700 hover:bg-red-50 hover:text-red-800 focus:ring-red-500"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </Button>
+    <li className="relative bg-white border border-gray-200 rounded-lg mb-4 overflow-hidden hover:shadow-md transition-shadow">
+      {/* Top section with original URL and stats */}
+      <div className="p-4 pb-2">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 gap-2">
+          <h3 className="text-md font-medium text-primary truncate max-w-full sm:max-w-[60%]">
+            {url.originalUrl}
+          </h3>
+          <div className="flex items-center space-x-2 self-start sm:self-center">
+            <Badge variant={url.isActive ? "default" : "outline"}>
+              {url.isActive ? 'Active' : 'Inactive'}
+            </Badge>
+            <div className="inline-flex items-center px-2 py-1 rounded-md text-sm font-medium bg-blue-100 text-blue-800">
+              <svg className="-ml-0.5 mr-1 h-4 w-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              {url.clicks} clicks
             </div>
           </div>
         </div>
+        
+        {/* Date created */}
+        <div className="text-sm text-gray-500 mb-2">
+          Created {formattedDate}
+        </div>
+        
+        {/* Shortened URL with copy button */}
+        <div className="bg-gray-50 p-2 rounded-md mb-3">
+          <div className="text-sm text-gray-700 mb-1">
+            Shortened URL:
+          </div>
+          <div className="flex items-center">
+            <div className="flex-1 overflow-hidden">
+              <a 
+                href={fullShortUrl} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-sm font-medium text-primary hover:text-blue-600 truncate block"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.open(fullShortUrl, '_blank');
+                }}
+              >
+                {fullShortUrl}
+              </a>
+            </div>
+            <button 
+              onClick={handleCopy}
+              className="ml-2 p-1 text-gray-500 hover:text-primary flex-shrink-0"
+              aria-label="Copy to clipboard"
+            >
+              <Clipboard className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      {/* Action buttons row - fixed at bottom */}
+      <div className="flex border-t border-gray-100 divide-x divide-gray-100">
+        <Dialog onOpenChange={(open) => {
+          if (open) handleQrCodeDialogOpen();
+        }}>
+          <DialogTrigger asChild>
+            <button className="flex-1 p-2 flex items-center justify-center text-sm text-gray-700 hover:bg-gray-50">
+              <QrCode className="h-4 w-4 mr-2" />
+              QR Code
+            </button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>QR Code for {url.shortCode}</DialogTitle>
+              <DialogDescription>
+                Scan this QR code to access your shortened URL. You can also download it in different formats.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col items-center justify-center py-4">
+              <div className="border border-gray-200 rounded-lg p-2 bg-white">
+                {isLoadingQrCode && (
+                  <div className="w-64 h-64 flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                  </div>
+                )}
+                
+                {qrCodeError && (
+                  <div className="w-64 h-64 flex items-center justify-center text-center p-4">
+                    <div className="text-red-500">
+                      <p className="font-medium">Error loading QR code</p>
+                      <p className="text-sm mt-2">{qrCodeError}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {qrCodeSrc && !isLoadingQrCode && !qrCodeError && (
+                  <img 
+                    src={qrCodeSrc} 
+                    alt={`QR Code for ${url.shortCode}`} 
+                    className="w-64 h-64"
+                  />
+                )}
+              </div>
+              <div className="mt-4 text-center">
+                <p className="text-sm text-gray-500 mb-2">This QR code links to:</p>
+                <p className="text-sm font-medium text-primary">{fullShortUrl}</p>
+              </div>
+            </div>
+            <div className="flex justify-center space-x-4 mt-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => downloadQrCode('svg')}
+                disabled={isLoadingQrCode}
+              >
+                Download SVG
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => downloadQrCode('png')}
+                disabled={isLoadingQrCode}
+              >
+                Download PNG
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+        
+        <button 
+          onClick={() => onEdit(url)}
+          className="flex-1 p-2 flex items-center justify-center text-sm text-gray-700 hover:bg-gray-50"
+        >
+          <Edit className="h-4 w-4 mr-2" />
+          Edit
+        </button>
+        
+        <button 
+          onClick={() => onDelete(url)}
+          className="flex-1 p-2 flex items-center justify-center text-sm text-red-600 hover:bg-red-50"
+        >
+          <Trash2 className="h-4 w-4 mr-2" />
+          Delete
+        </button>
       </div>
     </li>
   );
