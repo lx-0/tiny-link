@@ -13,7 +13,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 // Schema for the form with validation
 const formSchema = z.object({
   originalUrl: z.string().url('Please enter a valid URL').min(1, 'URL is required'),
-  shortCode: z.string().min(3, 'Short code must be at least 3 characters').optional(),
+  shortCode: z.string().min(5, 'Short code must be at least 5 characters').optional(),
   isActive: z.boolean().default(true),
 });
 
@@ -114,7 +114,7 @@ export default function LinkFormModal({
                     </div>
                   </FormControl>
                   <FormDescription>
-                    Leave blank to generate a random code
+                    Must be at least 5 characters. Leave blank to generate a random code.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

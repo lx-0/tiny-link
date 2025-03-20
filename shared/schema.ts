@@ -52,11 +52,16 @@ export const insertUrlSchema = createInsertSchema(urls)
     shortCode: z.string().min(5, "Shortcode must be at least 5 characters long"),
   });
 
-export const updateUrlSchema = createInsertSchema(urls).pick({
-  originalUrl: true,
-  shortCode: true,
-  isActive: true,
-});
+export const updateUrlSchema = createInsertSchema(urls)
+  .pick({
+    originalUrl: true,
+    shortCode: true,
+    isActive: true,
+  })
+  .extend({
+    // Add validation for shortCode to be at least 5 characters
+    shortCode: z.string().min(5, "Shortcode must be at least 5 characters long"),
+  });
 
 export type InsertUrl = z.infer<typeof insertUrlSchema>;
 export type UpdateUrl = z.infer<typeof updateUrlSchema>;
