@@ -512,7 +512,7 @@ export default function LandingPage() {
                     <div className="flex flex-col">
                       <Input
                         id="url"
-                        className={`text-sm font-mono border-2 py-5 focus-visible:ring-primary ${urlError ? "border-red-500" : ""}`}
+                        className={`text-sm font-mono border-2 h-10 focus-visible:ring-primary ${urlError ? "border-red-500" : ""}`}
                         placeholder="https://example.com/very/long/url/that/needs/shortening"
                         value={url}
                         onChange={(e) => {
@@ -597,7 +597,7 @@ export default function LandingPage() {
                           {/* Single URL display with copy button */}
                           {isAuthenticated ? (
                             <div className="flex items-center w-full">
-                              <div className="whitespace-nowrap text-sm font-mono bg-gray-100 px-2 py-3 rounded-l-md border-y border-l overflow-hidden text-ellipsis" style={{maxWidth: '40%'}}>
+                              <div className="whitespace-nowrap text-sm font-mono bg-gray-100 flex items-center h-10 px-2 rounded-l-md border-y border-l overflow-hidden text-ellipsis" style={{maxWidth: '40%'}}>
                                 {baseUrl}/
                               </div>
                               <form 
@@ -618,7 +618,7 @@ export default function LandingPage() {
                                       // Regenerate QR code when shortcode changes
                                       generateQRCode(`${baseUrl}/${e.target.value}`);
                                     }}
-                                    className={`text-sm font-mono border-2 py-3 rounded-none focus-visible:ring-primary w-full ${shortCodeError ? "border-red-500" : ""}`}
+                                    className={`text-sm font-mono border-2 h-10 rounded-none focus-visible:ring-primary w-full ${shortCodeError ? "border-red-500" : ""}`}
                                     placeholder="custom-code"
                                   />
                                   {shortCodeError && (
@@ -645,7 +645,7 @@ export default function LandingPage() {
                                 id="shortUrl"
                                 value={`${baseUrl}/${shortCode}`}
                                 readOnly
-                                className="text-sm font-mono bg-white border-2 py-3 focus-visible:ring-primary flex-1 rounded-r-none"
+                                className="text-sm font-mono bg-white border-2 h-10 focus-visible:ring-primary flex-1 rounded-r-none"
                               />
                               <Button 
                                 variant="outline" 
@@ -690,7 +690,7 @@ export default function LandingPage() {
                         {isAuthenticated && (
                           <div className="flex flex-col space-y-4">
                             <div className="flex items-center">
-                              <div className="whitespace-nowrap overflow-hidden text-ellipsis text-sm font-mono bg-gray-100 px-2 py-3 rounded-l-md border-y border-l" style={{maxWidth: '40%'}}>
+                              <div className="whitespace-nowrap overflow-hidden text-ellipsis text-sm font-mono bg-gray-100 flex items-center h-10 px-2 rounded-l-md border-y border-l" style={{maxWidth: '40%'}}>
                                 {baseUrl}/
                               </div>
                               <div className="flex-grow flex flex-col">
@@ -702,7 +702,7 @@ export default function LandingPage() {
                                     setCustomShortCodeError("");
                                   }}
                                   placeholder="custom-code (optional)"
-                                  className={`text-sm font-mono border-2 py-3 rounded-l-none focus-visible:ring-primary w-full ${customShortCodeError ? "border-red-500" : ""}`}
+                                  className={`text-sm font-mono border-2 h-10 rounded-l-none focus-visible:ring-primary w-full ${customShortCodeError ? "border-red-500" : ""}`}
                                 />
                                 {customShortCodeError && (
                                   <p className="text-xs text-red-500 mt-1">
