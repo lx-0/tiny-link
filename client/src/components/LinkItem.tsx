@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { useClipboard } from '@/hooks/useClipboard';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
+import { supabase } from '@/lib/supabase';
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -26,21 +28,63 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
   const { copy } = useClipboard();
   const { toast } = useToast();
   const [location] = useLocation();
+  const [qrCodeSrc, setQrCodeSrc] = useState<string | null>(null);
+  const [isLoadingQrCode, setIsLoadingQrCode] = useState(false);
+  const [qrCodeError, setQrCodeError] = useState<string | null>(null);
   
   // Calculate base URL for shortening (using current domain)
   const baseUrl = window.location.origin;
   // Use a format that works on Replit
   const fullShortUrl = `${baseUrl}/r/${url.shortCode}`;
   
-  // QR code URL
-  const qrCodeUrl = `/api/urls/${url.id}/qrcode?format=svg`;
-  const qrCodeUrlPng = `/api/urls/${url.id}/qrcode?format=png`;
-  const qrCodeUrlDataUrl = `/api/urls/${url.id}/qrcode?format=data-url`;
-  
   // Format created date
   const formattedDate = url.createdAt 
     ? formatDistanceToNow(new Date(url.createdAt), { addSuffix: true })
     : '';
+  
+  // Function to fetch QR code with authentication
+  const fetchQrCode = async (format: string = 'svg'): Promise<string> => {
+    setIsLoadingQrCode(true);
+    setQrCodeError(null);
+    
+    try {
+      // Get the current user's ID
+      const { data } = await supabase.auth.getSession();
+      const userId = data?.session?.user?.id;
+      
+      if (!userId) {
+        throw new Error('You must be logged in to view QR codes');
+      }
+      
+      // Fetch the QR code with the user ID in the header
+      const response = await fetch(`/api/urls/${url.id}/qrcode?format=${format}`, {
+        headers: {
+          'x-user-id': userId
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch QR code');
+      }
+      
+      // Handle different response formats
+      if (format === 'data-url') {
+        const jsonData = await response.json();
+        return jsonData.dataUrl;
+      } else {
+        // For SVG and PNG, convert to data URL
+        const blob = await response.blob();
+        return URL.createObjectURL(blob);
+      }
+    } catch (error) {
+      console.error('Error fetching QR code:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setQrCodeError(errorMessage);
+      throw error;
+    } finally {
+      setIsLoadingQrCode(false);
+    }
+  };
   
   const handleCopy = async () => {
     const success = await copy(fullShortUrl);
@@ -58,19 +102,42 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
     }
   };
   
-  const downloadQrCode = (format: string) => {
-    // Create a link element to trigger the download
-    const link = document.createElement('a');
-    link.href = format === 'png' ? qrCodeUrlPng : qrCodeUrl;
-    link.download = `qrcode-${url.shortCode}.${format}`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    toast({
-      title: 'QR Code downloaded',
-      description: `The QR code has been downloaded in ${format.toUpperCase()} format.`,
-    });
+  const downloadQrCode = async (format: string) => {
+    try {
+      // Fetch the QR code with authentication
+      const dataUrl = await fetchQrCode(format);
+      
+      // Create a link element to trigger the download
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = `qrcode-${url.shortCode}.${format}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast({
+        title: 'QR Code downloaded',
+        description: `The QR code has been downloaded in ${format.toUpperCase()} format.`,
+      });
+    } catch (error) {
+      toast({
+        title: 'Download failed',
+        description: error instanceof Error ? error.message : 'Failed to download QR code',
+        variant: 'destructive',
+      });
+    }
+  };
+  
+  // Load QR code when dialog opens
+  const handleQrCodeDialogOpen = async () => {
+    if (!qrCodeSrc && !isLoadingQrCode) {
+      try {
+        const dataUrl = await fetchQrCode('svg');
+        setQrCodeSrc(dataUrl);
+      } catch (error) {
+        // Error is already handled in fetchQrCode
+      }
+    }
   };
   
   return (
@@ -79,7 +146,7 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
         <div className="px-4 py-4 sm:px-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <div className="ml-1 flex flex-col">
+              <div className="ml-1 flex flex-col max-w-[70%]">
                 <div className="text-md font-medium text-primary truncate">
                   {url.originalUrl}
                 </div>
@@ -102,10 +169,10 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
               </div>
             </div>
           </div>
-          <div className="mt-3 sm:flex sm:justify-between">
+          <div className="mt-3 flex flex-col sm:flex-row sm:justify-between">
             <div className="flex items-center">
-              <div className="flex items-center px-3 py-2 text-sm font-medium rounded-md">
-                <div className="text-gray-900 truncate">
+              <div className="flex items-center px-3 py-2 text-sm font-medium rounded-md max-w-full">
+                <div className="text-gray-900 truncate max-w-[80%]">
                   Shortened URL: 
                   <a 
                     href={fullShortUrl} 
@@ -130,13 +197,14 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
                 </button>
               </div>
             </div>
-            <div className="mt-2 flex items-center text-sm sm:mt-0">
-              <Dialog>
+            <div className="mt-2 flex flex-wrap gap-2 items-center text-sm sm:mt-0">
+              <Dialog onOpenChange={(open) => {
+                if (open) handleQrCodeDialogOpen();
+              }}>
                 <DialogTrigger asChild>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="ml-2"
                   >
                     <QrCode className="mr-2 h-4 w-4" />
                     QR Code
@@ -151,11 +219,28 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
                   </DialogHeader>
                   <div className="flex flex-col items-center justify-center py-4">
                     <div className="border border-gray-200 rounded-lg p-2 bg-white">
-                      <img 
-                        src={qrCodeUrl} 
-                        alt={`QR Code for ${url.shortCode}`} 
-                        className="w-64 h-64"
-                      />
+                      {isLoadingQrCode && (
+                        <div className="w-64 h-64 flex items-center justify-center">
+                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                        </div>
+                      )}
+                      
+                      {qrCodeError && (
+                        <div className="w-64 h-64 flex items-center justify-center text-center p-4">
+                          <div className="text-red-500">
+                            <p className="font-medium">Error loading QR code</p>
+                            <p className="text-sm mt-2">{qrCodeError}</p>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {qrCodeSrc && !isLoadingQrCode && !qrCodeError && (
+                        <img 
+                          src={qrCodeSrc} 
+                          alt={`QR Code for ${url.shortCode}`} 
+                          className="w-64 h-64"
+                        />
+                      )}
                     </div>
                     <div className="mt-4 text-center">
                       <p className="text-sm text-gray-500 mb-2">This QR code links to:</p>
@@ -167,6 +252,7 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
                       variant="outline" 
                       size="sm"
                       onClick={() => downloadQrCode('svg')}
+                      disabled={isLoadingQrCode}
                     >
                       Download SVG
                     </Button>
@@ -174,6 +260,7 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
                       variant="outline" 
                       size="sm"
                       onClick={() => downloadQrCode('png')}
+                      disabled={isLoadingQrCode}
                     >
                       Download PNG
                     </Button>
@@ -185,7 +272,6 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
                 onClick={() => onEdit(url)}
                 variant="outline"
                 size="sm"
-                className="ml-2"
               >
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
@@ -195,7 +281,7 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
                 onClick={() => onDelete(url)}
                 variant="outline"
                 size="sm"
-                className="ml-2 text-red-700 hover:bg-red-50 hover:text-red-800 focus:ring-red-500"
+                className="text-red-700 hover:bg-red-50 hover:text-red-800 focus:ring-red-500"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete
