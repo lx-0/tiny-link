@@ -1,11 +1,20 @@
 import { Url } from '@shared/schema';
-import { Clipboard, Edit, Trash2 } from 'lucide-react';
+import { Clipboard, Edit, Trash2, QrCode } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useClipboard } from '@/hooks/useClipboard';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
 
 interface LinkItemProps {
   url: Url;
@@ -22,6 +31,11 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
   const baseUrl = window.location.origin;
   // Use a format that works on Replit
   const fullShortUrl = `${baseUrl}/r/${url.shortCode}`;
+  
+  // QR code URL
+  const qrCodeUrl = `/api/urls/${url.id}/qrcode?format=svg`;
+  const qrCodeUrlPng = `/api/urls/${url.id}/qrcode?format=png`;
+  const qrCodeUrlDataUrl = `/api/urls/${url.id}/qrcode?format=data-url`;
   
   // Format created date
   const formattedDate = url.createdAt 
@@ -42,6 +56,21 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
         variant: 'destructive',
       });
     }
+  };
+  
+  const downloadQrCode = (format: string) => {
+    // Create a link element to trigger the download
+    const link = document.createElement('a');
+    link.href = format === 'png' ? qrCodeUrlPng : qrCodeUrl;
+    link.download = `qrcode-${url.shortCode}.${format}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast({
+      title: 'QR Code downloaded',
+      description: `The QR code has been downloaded in ${format.toUpperCase()} format.`,
+    });
   };
   
   return (
@@ -102,15 +131,66 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm sm:mt-0">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="ml-2"
+                  >
+                    <QrCode className="mr-2 h-4 w-4" />
+                    QR Code
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>QR Code for {url.shortCode}</DialogTitle>
+                    <DialogDescription>
+                      Scan this QR code to access your shortened URL. You can also download it in different formats.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="flex flex-col items-center justify-center py-4">
+                    <div className="border border-gray-200 rounded-lg p-2 bg-white">
+                      <img 
+                        src={qrCodeUrl} 
+                        alt={`QR Code for ${url.shortCode}`} 
+                        className="w-64 h-64"
+                      />
+                    </div>
+                    <div className="mt-4 text-center">
+                      <p className="text-sm text-gray-500 mb-2">This QR code links to:</p>
+                      <p className="text-sm font-medium text-primary">{fullShortUrl}</p>
+                    </div>
+                  </div>
+                  <div className="flex justify-center space-x-4 mt-4">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => downloadQrCode('svg')}
+                    >
+                      Download SVG
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => downloadQrCode('png')}
+                    >
+                      Download PNG
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+              
               <Button
                 onClick={() => onEdit(url)}
                 variant="outline"
                 size="sm"
-                className="ml-4"
+                className="ml-2"
               >
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
               </Button>
+              
               <Button
                 onClick={() => onDelete(url)}
                 variant="outline"

@@ -11,9 +11,9 @@
 **Self-hosted URL shortening that puts you in control.**
 </div>
 
-<p align="center">
+<!--p align="center">
   <img src="./generated-icon.png" alt="TinyLink Logo" width="200" height="200">
-</p>
+</p-->
 
 ## ⚡ Quick Features
 
@@ -28,7 +28,7 @@
 
 ```bash
 # Clone the repo
-git clone https://github.com/yourusername/tinylink.git
+git clone https://github.com/lx-0/tinylink.git
 cd tinylink
 
 # Install dependencies

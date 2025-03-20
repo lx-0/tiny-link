@@ -1,6 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { nanoid } from "nanoid";
+import * as QRCode from "qrcode";
 import { storage } from "./storage";
 import { insertUserSchema, insertUrlSchema, updateUrlSchema } from "@shared/schema";
 import { ZodError } from "zod";
@@ -245,6 +246,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       res.status(500).json({ message: "Error fetching stats" });
+    }
+  });
+  
+  // QR Code generation endpoint
+  app.get("/api/urls/:id/qrcode", async (req, res) => {
+    const supabaseId = req.headers["x-user-id"] as string;
+    if (!supabaseId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const urlId = parseInt(req.params.id);
+    if (isNaN(urlId)) {
+      return res.status(400).json({ message: "Invalid URL ID" });
+    }
+
+    const format = req.query.format as string || 'svg';
+    const size = parseInt(req.query.size as string) || 200;
+
+    try {
+      const user = await storage.getUserBySupabaseId(supabaseId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const url = await storage.getUrl(urlId);
+      if (!url) {
+        return res.status(404).json({ message: "URL not found" });
+      }
+
+      if (url.userId !== user.id) {
+        return res.status(403).json({ message: "Not authorized to access this URL" });
+      }
+
+      // Get the base URL from request or use a default
+      const baseUrl = req.headers.host ? 
+        `${req.protocol}://${req.headers.host}` : 
+        'http://localhost:5000';
+      
+      // The short URL to encode in the QR code
+      const shortUrl = `${baseUrl}/r/${url.shortCode}`;
+
+      // Generate QR code based on requested format
+      if (format === 'svg') {
+        const qrCodeSvg = await QRCode.toString(shortUrl, {
+          type: 'svg',
+          margin: 2,
+          width: size,
+          color: {
+            dark: '#000',
+            light: '#fff'
+          }
+        });
+        
+        res.header('Content-Type', 'image/svg+xml');
+        res.send(qrCodeSvg);
+      } 
+      else if (format === 'png') {
+        const qrCodeBuffer = await QRCode.toBuffer(shortUrl, {
+          type: 'png',
+          margin: 2, 
+          width: size,
+          color: {
+            dark: '#000',
+            light: '#fff'
+          }
+        });
+        
+        res.header('Content-Type', 'image/png');
+        res.send(qrCodeBuffer);
+      } 
+      else if (format === 'data-url') {
+        const qrCodeDataUrl = await QRCode.toDataURL(shortUrl, {
+          margin: 2,
+          width: size,
+          color: {
+            dark: '#000',
+            light: '#fff'
+          }
+        });
+        
+        res.json({ dataUrl: qrCodeDataUrl });
+      } 
+      else {
+        res.status(400).json({ message: "Invalid format. Supported formats: svg, png, data-url" });
+      }
+    } catch (error) {
+      console.error('QR Code generation error:', error);
+      res.status(500).json({ message: "Error generating QR code" });
     }
   });
 
