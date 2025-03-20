@@ -170,41 +170,105 @@ export default function LandingPage() {
             </div>
 
             <div className="md:w-1/2 w-full">
-              <Card className="shadow-lg">
-                <CardHeader>
-                  <CardTitle>Create a Short Link</CardTitle>
-                  <CardDescription>
-                    Paste a long URL and get a short link instantly
-                  </CardDescription>
+              <Card className="shadow-lg border-0">
+                <CardHeader className="bg-gray-50 border-b pb-3">
+                  <CardTitle className="flex items-center text-xl">
+                    <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M13.5 12C13.5 15.18 10.93 17.75 7.75 17.75C4.57 17.75 2 15.18 2 12C2 8.82 4.57 6.25 7.75 6.25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M10 12C10 8.69 12.69 6 16 6C19.31 6 22 8.69 22 12C22 15.31 19.31 18 16 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    Your Long URL
+                  </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid gap-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="url">URL</Label>
+                <CardContent className="pt-4">
+                  <div className="space-y-4">
+                    <div>
                       <Input
                         id="url"
-                        placeholder="https://example.com/very/long/url"
+                        className="text-sm font-mono border-2 py-5 focus-visible:ring-primary"
+                        placeholder="https://example.com/very/long/url/that/needs/shortening"
                         value={url}
                         onChange={(e) => setUrl(e.target.value)}
                       />
                     </div>
+                    <div className="flex items-center space-x-2 text-sm text-gray-500">
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM11 7V9H13V7H11ZM11 11V17H13V11H11ZM4 12C4 16.41 7.59 20 12 20C16.41 20 20 16.41 20 12C20 7.59 16.41 4 12 4C7.59 4 4 7.59 4 12Z" fill="currentColor"/>
+                      </svg>
+                      <span>Enter your link above — HTTPS is added automatically</span>
+                    </div>
                   </div>
                 </CardContent>
-                <CardFooter>
-                  <Button
-                    className="w-full"
-                    onClick={handleQuickCreate}
-                    disabled={isCreating || !url}
-                  >
-                    {isCreating ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Creating...
-                      </>
-                    ) : (
-                      "Shorten URL"
-                    )}
-                  </Button>
+
+                <CardHeader className="bg-gray-50 border-t border-b py-3 mt-2">
+                  <CardTitle className="flex items-center text-xl">
+                    <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M8.5 10C8.5 6.82 11.07 4.25 14.25 4.25C17.43 4.25 20 6.82 20 10C20 13.18 17.43 15.75 14.25 15.75" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M12 10C12 13.31 9.31 16 6 16C2.69 16 0 13.31 0 10C0 6.69 2.69 4 6 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    TinyLink
+                  </CardTitle>
+                </CardHeader>
+
+                <CardContent className="flex flex-col space-y-4 pt-4">
+                  <div className="flex space-x-2">
+                    <Button
+                      className="flex-1 py-6"
+                      onClick={handleQuickCreate}
+                      disabled={isCreating || !url}
+                    >
+                      {isCreating ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Creating...
+                        </>
+                      ) : (
+                        "Shorten URL"
+                      )}
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="py-5 text-xs" 
+                      onClick={() => {
+                        window.scrollTo(0, 0);
+                        navigate(isAuthenticated ? "/app/dashboard" : "/app/login");
+                      }}
+                    >
+                      {isAuthenticated ? "My Links" : "Sign In"}
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="py-5 text-xs"
+                      onClick={() => {
+                        window.scrollTo(0, 0);
+                        navigate(isAuthenticated ? "/app/dashboard" : "/app/register");
+                      }}
+                    >
+                      {isAuthenticated ? "Create New" : "Create Account"}
+                    </Button>
+                  </div>
+                </CardContent>
+
+                <CardFooter className="bg-gray-50 mt-2 text-xs text-gray-500 flex justify-center border-t pt-3">
+                  <div className="flex space-x-3">
+                    <span className="flex items-center">
+                      <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 16V12M12 8H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      Custom codes with account
+                    </span>
+                    <span className="flex items-center">
+                      <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 12H15M7 8H17M11 16H13M6 20H18C19.1046 20 20 19.1046 20 18V6C20 4.89543 19.1046 4 18 4H6C4.89543 4 4 4.89543 4 6V18C4 19.1046 4.89543 20 6 20Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      Free tracking analytics
+                    </span>
+                  </div>
                 </CardFooter>
               </Card>
             </div>
