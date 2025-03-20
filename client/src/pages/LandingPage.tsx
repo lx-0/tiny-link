@@ -25,7 +25,9 @@ import {
   Share2, 
   QrCode,
   ArrowRight,
-  RefreshCw
+  RefreshCw,
+  Download,
+  Pencil
 } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import NormalizedLink from "@/components/ui/normalized-link";
@@ -35,6 +37,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useClipboard } from "@/hooks/useClipboard";
 import QRCode from 'qrcode';
 
@@ -45,12 +55,16 @@ export default function LandingPage() {
   const { copy } = useClipboard();
   const [url, setUrl] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [shortUrl, setShortUrl] = useState("");
   const [showResult, setShowResult] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
   const [showQrCode, setShowQrCode] = useState(false);
+  const [showQrModal, setShowQrModal] = useState(false);
   const [shortCode, setShortCode] = useState("");
+  const [customShortCode, setCustomShortCode] = useState("");
   const [baseUrl, setBaseUrl] = useState("");
+  const [urlId, setUrlId] = useState<number | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
   // Handle sign out
@@ -114,6 +128,63 @@ export default function LandingPage() {
     });
   };
 
+  // Handle updating an existing shortcode
+  const handleUpdateShortcode = async () => {
+    if (!shortCode) {
+      toast({
+        title: "Shortcode is required",
+        description: "Please enter a shortcode",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUpdating(true);
+
+    try {
+      // Update the URL with the new shortcode
+      const response = await apiRequest("PATCH", `/api/urls/${urlId}`, {
+        shortCode,
+      });
+
+      if (response) {
+        // Update the full URL with the new shortcode
+        const fullUrl = `${baseUrl}/${shortCode}`;
+        setShortUrl(fullUrl);
+        
+        // Generate new QR code
+        await generateQRCode(fullUrl);
+        
+        // Show success message
+        toast({
+          title: "Shortcode updated!",
+          description: "Your custom shortcode has been updated successfully.",
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "Failed to update shortcode. This shortcode may already be in use.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  // Download QR code as PNG
+  const handleDownloadQr = () => {
+    if (!qrCodeDataUrl) return;
+    
+    const a = document.createElement('a');
+    a.href = qrCodeDataUrl;
+    a.download = `tinylink-${shortCode}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   const handleQuickCreate = async () => {
     if (!url) {
       toast({
@@ -148,21 +219,24 @@ export default function LandingPage() {
         return;
       }
 
-      // Generate a random short code
-      const generatedShortCode = nanoid(7);
-      setShortCode(generatedShortCode);
+      // Use custom shortcode if provided, otherwise generate a random one
+      const finalShortCode = isAuthenticated && customShortCode 
+        ? customShortCode 
+        : nanoid(7);
+      
+      setShortCode(finalShortCode);
 
       // Create the URL
       const response = await apiRequest("POST", "/api/urls", {
         originalUrl,
-        shortCode: generatedShortCode,
+        shortCode: finalShortCode,
       });
 
       if (response) {
         // Create the full URL
         const origin = window.location.origin;
         setBaseUrl(origin);
-        const fullUrl = `${origin}/${generatedShortCode}`;
+        const fullUrl = `${origin}/${finalShortCode}`;
         
         // Update state with the new short URL
         setShortUrl(fullUrl);
@@ -378,57 +452,69 @@ export default function LandingPage() {
                           <ArrowRight className="w-4 h-4 mr-2" /> 
                           Your shortened URL
                         </Label>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <div className="relative flex-grow">
-                            <div className="flex items-center">
-                              <span className="text-sm font-mono bg-gray-100 px-2 py-3 rounded-l-md border-y border-l">
-                                {baseUrl}/
-                              </span>
-                              <Input
-                                id="shortCode"
-                                value={shortCode}
-                                onChange={(e) => {
-                                  setShortCode(e.target.value);
-                                  // Regenerate QR code when shortcode changes
-                                  generateQRCode(`${baseUrl}/${e.target.value}`);
-                                }}
-                                className="text-sm font-mono border-2 py-2 rounded-l-none focus-visible:ring-primary"
-                              />
-                            </div>
+                        <div className="flex flex-col space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <Input
+                              id="shortUrl"
+                              value={`${baseUrl}/${shortCode}`}
+                              readOnly
+                              className="text-sm font-mono bg-white border-2 py-3 focus-visible:ring-primary flex-1"
+                            />
+                            <Button 
+                              variant="outline" 
+                              size="icon"
+                              onClick={handleCopy}
+                              title="Copy to clipboard"
+                            >
+                              <Copy className="h-4 w-4" />
+                            </Button>
                           </div>
-                          <Button 
-                            variant="outline" 
-                            size="icon"
-                            onClick={handleCopy}
-                            title="Copy to clipboard"
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
+                          
+                          {isAuthenticated && (
+                            <div className="flex items-center space-x-2 mt-1">
+                              <div className="relative flex-grow">
+                                <div className="flex items-center">
+                                  <span className="text-sm font-mono bg-gray-100 px-2 py-3 rounded-l-md border-y border-l">
+                                    {baseUrl}/
+                                  </span>
+                                  <Input
+                                    id="shortCode"
+                                    value={shortCode}
+                                    onChange={(e) => {
+                                      setShortCode(e.target.value);
+                                      // Regenerate QR code when shortcode changes
+                                      generateQRCode(`${baseUrl}/${e.target.value}`);
+                                    }}
+                                    className="text-sm font-mono border-2 py-2 rounded-l-none focus-visible:ring-primary"
+                                    placeholder="custom-code"
+                                  />
+                                </div>
+                              </div>
+                              <Button 
+                                variant="outline"
+                                size="sm"
+                                onClick={handleUpdateShortcode}
+                                disabled={!shortCode}
+                                title="Update shortcode"
+                              >
+                                <Pencil className="h-4 w-4 mr-1" />
+                                Update
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       </div>
 
                       <div className="flex flex-col space-y-3">
-                        {showQrCode && qrCodeDataUrl && (
-                          <div className="flex justify-center">
-                            <div className="bg-white p-3 rounded-md border shadow-sm">
-                              <img 
-                                src={qrCodeDataUrl} 
-                                alt="QR Code" 
-                                className="w-32 h-32 mx-auto" 
-                              />
-                            </div>
-                          </div>
-                        )}
-                        
                         <div className="flex space-x-2 justify-center">
                           <Button 
                             className="flex-1" 
                             variant="outline" 
                             size="sm"
-                            onClick={() => setShowQrCode(!showQrCode)}
+                            onClick={() => setShowQrModal(true)}
                           >
                             <QrCode className="mr-2 h-4 w-4" />
-                            {showQrCode ? "Hide QR Code" : "Show QR Code"}
+                            Show QR Code
                           </Button>
                           <Button 
                             className="flex-1" 
@@ -444,9 +530,26 @@ export default function LandingPage() {
                     </div>
                   ) : (
                     <>
-                      <div className="flex space-x-2">
+                      <div className="space-y-4">
+                        {isAuthenticated && (
+                          <div className="flex flex-col space-y-4">
+                            <div className="flex items-center">
+                              <span className="text-sm font-mono bg-gray-100 px-2 py-3 rounded-l-md border-y border-l">
+                                {baseUrl}/
+                              </span>
+                              <Input
+                                id="customShortCode"
+                                value={customShortCode}
+                                onChange={(e) => setCustomShortCode(e.target.value)}
+                                placeholder="custom-code (optional)"
+                                className="text-sm font-mono border-2 py-2 rounded-l-none focus-visible:ring-primary"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      
                         <Button
-                          className="flex-1 py-6"
+                          className="w-full py-6"
                           onClick={handleQuickCreate}
                           disabled={isCreating || !url}
                         >
@@ -462,8 +565,8 @@ export default function LandingPage() {
                       </div>
 
                       {!isAuthenticated && (
-                        <div className="text-center text-xs text-gray-500">
-                          <p>Sign in to access all features</p>
+                        <div className="text-center text-xs text-gray-500 mt-2">
+                          <p>Sign in to use custom codes</p>
                         </div>
                       )}
                     </>
