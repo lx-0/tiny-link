@@ -4,6 +4,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
@@ -16,17 +17,21 @@ import AuthGuard from "@/components/AuthGuard";
 // App layout component with navbar
 function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main className="min-h-screen bg-gray-50">{children}</main>
-    </>
+      <main className="flex-grow bg-gray-50">{children}</main>
+      <Footer />
+    </div>
   );
 }
 
 // Simple layout without navbar
 function SimpleLayout({ children }: { children: React.ReactNode }) {
   return (
-    <main className="min-h-screen">{children}</main>
+    <div className="flex flex-col min-h-screen">
+      <main className="flex-grow">{children}</main>
+      <Footer />
+    </div>
   );
 }
 
