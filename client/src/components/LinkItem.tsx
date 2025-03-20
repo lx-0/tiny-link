@@ -143,7 +143,7 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
   return (
     <li className="relative bg-white border border-gray-200 rounded-lg mb-4 overflow-hidden hover:shadow-md transition-shadow">
       {/* Top section with original URL and stats */}
-      <div className="p-4 pb-2">
+      <div className="p-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 gap-2">
           <h3 className="text-md font-medium text-primary truncate max-w-full sm:max-w-[60%]">
             {url.originalUrl}
@@ -167,7 +167,7 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
         </div>
         
         {/* Shortened URL with copy button */}
-        <div className="bg-gray-50 p-2 rounded-md mb-3">
+        <div className="bg-gray-50 p-2 rounded-md mb-0">
           <div className="text-sm text-gray-700 mb-1">
             Shortened URL:
           </div>
@@ -198,12 +198,12 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
       </div>
       
       {/* Action buttons row - fixed at bottom */}
-      <div className="flex border-t border-gray-100 divide-x divide-gray-100">
+      <div className="flex bg-gray-50 border-t border-gray-200 divide-x divide-gray-200">
         <Dialog onOpenChange={(open) => {
           if (open) handleQrCodeDialogOpen();
         }}>
           <DialogTrigger asChild>
-            <button className="flex-1 p-2 flex items-center justify-center text-sm text-gray-700 hover:bg-gray-50">
+            <button className="flex-1 p-2 flex items-center justify-center text-sm text-gray-700 hover:bg-gray-100">
               <QrCode className="h-4 w-4 mr-2" />
               QR Code
             </button>
@@ -268,7 +268,7 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
         
         <button 
           onClick={() => onEdit(url)}
-          className="flex-1 p-2 flex items-center justify-center text-sm text-gray-700 hover:bg-gray-50"
+          className="flex-1 p-2 flex items-center justify-center text-sm text-gray-700 hover:bg-gray-100"
         >
           <Edit className="h-4 w-4 mr-2" />
           Edit
