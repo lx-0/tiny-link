@@ -161,11 +161,6 @@ const data = await response.json();
 TinyLink can be configured via environment variables:
 
 ```env
-# Database configuration
-POSTGRES_USER=tinylink
-POSTGRES_PASSWORD=your_password
-POSTGRES_DB=tinylink
-
 # Supabase and database connection
 SUPABASE_DATABASE_URL=postgres://user:password@localhost:5432/tinylink
 DB_SCHEMA=tinylink
