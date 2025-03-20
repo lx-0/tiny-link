@@ -1,7 +1,8 @@
 version: '3.8'
 
 services:
-  app:
+  # Main application server - runs Express backend and serves React frontend
+  server:
     build:
       context: .
       dockerfile: Dockerfile.dev
@@ -19,6 +20,7 @@ services:
       - db
       - db-init
 
+  # PostgreSQL database  
   db:
     image: postgres:16-alpine
     restart: always
