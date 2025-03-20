@@ -496,20 +496,20 @@ export default function LandingPage() {
                   </CardTitle>
                 </CardHeader>
 
-                <CardContent className="flex flex-col space-y-4 pt-4">
+                <CardContent className="flex flex-col space-y-4 pt-4 pb-6">
                   {showResult ? (
                     <div className="space-y-5">
                       <div>
-                        <Label htmlFor="shortUrl" className="text-sm font-medium mb-1 flex items-center">
+                        <Label htmlFor="shortUrl" className="text-sm font-medium mb-2 flex items-center">
                           <ArrowRight className="w-4 h-4 mr-2" /> 
                           Your shortened URL
                         </Label>
-                        <div className="flex flex-col space-y-2">
+                        <div className="flex flex-col space-y-4">
                           {/* Single URL display with copy button */}
-                          <div className="flex items-center space-x-2">
-                            {isAuthenticated ? (
-                              <div className="flex items-center flex-1">
-                                <div className="whitespace-nowrap text-sm font-mono bg-gray-100 px-2 py-3 rounded-l-md border-y border-l overflow-hidden text-ellipsis" style={{maxWidth: '70%'}}>
+                          {isAuthenticated ? (
+                            <div className="flex flex-wrap items-center gap-2">
+                              <div className="flex items-center flex-grow min-w-0">
+                                <div className="whitespace-nowrap text-sm font-mono bg-gray-100 px-2 py-3 rounded-l-md border-y border-l overflow-hidden text-ellipsis" style={{maxWidth: '40%'}}>
                                   {baseUrl}/
                                 </div>
                                 <Input
@@ -520,42 +520,53 @@ export default function LandingPage() {
                                     // Regenerate QR code when shortcode changes
                                     generateQRCode(`${baseUrl}/${e.target.value}`);
                                   }}
-                                  className="text-sm font-mono border-2 py-2 rounded-l-none focus-visible:ring-primary"
+                                  className="text-sm font-mono border-2 py-2 rounded-l-none focus-visible:ring-primary w-auto flex-grow"
                                   placeholder="custom-code"
                                 />
+                              </div>
+                              <div className="flex items-center gap-2">
                                 <Button 
                                   variant="outline"
                                   size="sm"
                                   onClick={handleUpdateShortcode}
                                   disabled={!shortCode}
-                                  className="ml-2"
                                   title="Update shortcode"
                                 >
                                   <Pencil className="h-4 w-4 mr-1" />
                                   Update
                                 </Button>
+                                <Button 
+                                  variant="outline" 
+                                  size="icon"
+                                  onClick={handleCopy}
+                                  title="Copy to clipboard"
+                                >
+                                  <Copy className="h-4 w-4" />
+                                </Button>
                               </div>
-                            ) : (
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
                               <Input
                                 id="shortUrl"
                                 value={`${baseUrl}/${shortCode}`}
                                 readOnly
                                 className="text-sm font-mono bg-white border-2 py-3 focus-visible:ring-primary flex-1"
                               />
-                            )}
-                            <Button 
-                              variant="outline" 
-                              size="icon"
-                              onClick={handleCopy}
-                              title="Copy to clipboard"
-                            >
-                              <Copy className="h-4 w-4" />
-                            </Button>
-                          </div>
+                              <Button 
+                                variant="outline" 
+                                size="icon"
+                                onClick={handleCopy}
+                                title="Copy to clipboard"
+                              >
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       </div>
 
-                      <div className="flex flex-col space-y-3">
+                      <div className="flex flex-col space-y-3 mt-3">
                         <div className="flex space-x-2 justify-center">
                           <Button 
                             className="flex-1" 
@@ -584,7 +595,7 @@ export default function LandingPage() {
                         {isAuthenticated && (
                           <div className="flex flex-col space-y-4">
                             <div className="flex items-center">
-                              <div className="whitespace-nowrap overflow-hidden text-ellipsis text-sm font-mono bg-gray-100 px-2 py-3 rounded-l-md border-y border-l" style={{maxWidth: '70%'}}>
+                              <div className="whitespace-nowrap overflow-hidden text-ellipsis text-sm font-mono bg-gray-100 px-2 py-3 rounded-l-md border-y border-l" style={{maxWidth: '40%'}}>
                                 {baseUrl}/
                               </div>
                               <Input
@@ -592,7 +603,7 @@ export default function LandingPage() {
                                 value={customShortCode}
                                 onChange={(e) => setCustomShortCode(e.target.value)}
                                 placeholder="custom-code (optional)"
-                                className="text-sm font-mono border-2 py-2 rounded-l-none focus-visible:ring-primary"
+                                className="text-sm font-mono border-2 py-2 rounded-l-none focus-visible:ring-primary flex-grow"
                               />
                             </div>
                           </div>
