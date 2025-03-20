@@ -366,7 +366,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Redirect route - needs to be at the end to avoid conflicts with API routes
-  app.get("/r/:shortCode", async (req, res) => {
+  app.get("/:shortCode", async (req, res) => {
     const { shortCode } = req.params;
     
     try {

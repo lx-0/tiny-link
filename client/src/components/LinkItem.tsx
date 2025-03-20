@@ -34,7 +34,7 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
 
   // Calculate base URL for shortening (using current domain)
   const baseUrl = window.location.origin;
-  // Shortened URLs now at root level
+  // Use root path for short URLs
   const fullShortUrl = `${baseUrl}/${url.shortCode}`;
 
   // Format created date
@@ -146,7 +146,7 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
   };
 
   return (
-    <li>
+    <li className="bg-white">
       {/* Card with content and buttons - no nested borders */}
       <div className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
         {/* Top section with original URL and stats */}

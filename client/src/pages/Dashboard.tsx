@@ -307,7 +307,7 @@ export default function Dashboard() {
 
         {/* Links list */}
         {urlsLoading ? (
-          <div className="mt-6 bg-white shadow rounded-md p-6 text-center">
+          <div className="mt-6 shadow rounded-md p-6 text-center">
             <div className="animate-pulse flex justify-center">
               <LinkIcon className="h-10 w-10 text-gray-200" />
             </div>
@@ -316,8 +316,8 @@ export default function Dashboard() {
         ) : urls.length === 0 ? (
           <EmptyState onAddNew={() => setShowAddModal(true)} />
         ) : (
-          <div className="mt-6 bg-white shadow overflow-hidden sm:rounded-md rounded-lg">
-            <ul className="divide-y divide-gray-200">
+          <div className="mt-6 overflow-hidden">
+            <ul className="space-y-4 shadow sm:rounded-md rounded-lg">
               {filteredAndSortedUrls.map((url: Url) => (
                 <LinkItem
                   key={url.id}
