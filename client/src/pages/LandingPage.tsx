@@ -502,13 +502,44 @@ export default function LandingPage() {
                           Your shortened URL
                         </Label>
                         <div className="flex flex-col space-y-2">
+                          {/* Single URL display with copy button */}
                           <div className="flex items-center space-x-2">
-                            <Input
-                              id="shortUrl"
-                              value={`${baseUrl}/${shortCode}`}
-                              readOnly
-                              className="text-sm font-mono bg-white border-2 py-3 focus-visible:ring-primary flex-1"
-                            />
+                            {isAuthenticated ? (
+                              <div className="flex items-center flex-1">
+                                <div className="whitespace-nowrap text-sm font-mono bg-gray-100 px-2 py-3 rounded-l-md border-y border-l overflow-hidden text-ellipsis" style={{maxWidth: '70%'}}>
+                                  {baseUrl}/
+                                </div>
+                                <Input
+                                  id="shortCode"
+                                  value={shortCode}
+                                  onChange={(e) => {
+                                    setShortCode(e.target.value);
+                                    // Regenerate QR code when shortcode changes
+                                    generateQRCode(`${baseUrl}/${e.target.value}`);
+                                  }}
+                                  className="text-sm font-mono border-2 py-2 rounded-l-none focus-visible:ring-primary"
+                                  placeholder="custom-code"
+                                />
+                                <Button 
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={handleUpdateShortcode}
+                                  disabled={!shortCode}
+                                  className="ml-2"
+                                  title="Update shortcode"
+                                >
+                                  <Pencil className="h-4 w-4 mr-1" />
+                                  Update
+                                </Button>
+                              </div>
+                            ) : (
+                              <Input
+                                id="shortUrl"
+                                value={`${baseUrl}/${shortCode}`}
+                                readOnly
+                                className="text-sm font-mono bg-white border-2 py-3 focus-visible:ring-primary flex-1"
+                              />
+                            )}
                             <Button 
                               variant="outline" 
                               size="icon"
@@ -518,39 +549,6 @@ export default function LandingPage() {
                               <Copy className="h-4 w-4" />
                             </Button>
                           </div>
-                          
-                          {isAuthenticated && (
-                            <div className="flex items-center space-x-2 mt-1">
-                              <div className="relative flex-grow">
-                                <div className="flex items-center">
-                                  <span className="text-sm font-mono bg-gray-100 px-2 py-3 rounded-l-md border-y border-l">
-                                    {baseUrl}/
-                                  </span>
-                                  <Input
-                                    id="shortCode"
-                                    value={shortCode}
-                                    onChange={(e) => {
-                                      setShortCode(e.target.value);
-                                      // Regenerate QR code when shortcode changes
-                                      generateQRCode(`${baseUrl}/${e.target.value}`);
-                                    }}
-                                    className="text-sm font-mono border-2 py-2 rounded-l-none focus-visible:ring-primary"
-                                    placeholder="custom-code"
-                                  />
-                                </div>
-                              </div>
-                              <Button 
-                                variant="outline"
-                                size="sm"
-                                onClick={handleUpdateShortcode}
-                                disabled={!shortCode}
-                                title="Update shortcode"
-                              >
-                                <Pencil className="h-4 w-4 mr-1" />
-                                Update
-                              </Button>
-                            </div>
-                          )}
                         </div>
                       </div>
 
@@ -583,9 +581,9 @@ export default function LandingPage() {
                         {isAuthenticated && (
                           <div className="flex flex-col space-y-4">
                             <div className="flex items-center">
-                              <span className="text-sm font-mono bg-gray-100 px-2 py-3 rounded-l-md border-y border-l">
+                              <div className="whitespace-nowrap overflow-hidden text-ellipsis text-sm font-mono bg-gray-100 px-2 py-3 rounded-l-md border-y border-l" style={{maxWidth: '70%'}}>
                                 {baseUrl}/
-                              </span>
+                              </div>
                               <Input
                                 id="customShortCode"
                                 value={customShortCode}
