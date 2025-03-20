@@ -192,6 +192,9 @@ export default function LandingPage() {
   };
 
   const handleQuickCreate = async () => {
+    // Clear previous errors
+    setCustomShortCodeError("");
+    
     if (!url) {
       toast({
         title: "URL is required",
@@ -214,6 +217,12 @@ export default function LandingPage() {
       originalUrl = `https://${originalUrl}`;
     }
 
+    // Validate custom shortcode if provided
+    if (isAuthenticated && customShortCode && customShortCode.length < 5) {
+      setCustomShortCodeError("Shortcodes must be at least 5 characters long");
+      return;
+    }
+
     setIsCreating(true);
 
     try {
@@ -229,15 +238,6 @@ export default function LandingPage() {
       let shortCodeToUse = "";
       
       if (isAuthenticated && customShortCode) {
-        if (customShortCode.length < 5) {
-          toast({
-            title: "Shortcode too short",
-            description: "Shortcodes must be at least 5 characters long",
-            variant: "destructive",
-          });
-          setIsCreating(false);
-          return;
-        }
         shortCodeToUse = customShortCode;
       } else {
         // Ensure random code is at least 5 characters
@@ -495,6 +495,7 @@ export default function LandingPage() {
                         placeholder="https://example.com/very/long/url/that/needs/shortening"
                         value={url}
                         onChange={(e) => setUrl(e.target.value)}
+                        readOnly={showResult}
                       />
                     </div>
                     <div className="flex gap-2">
@@ -654,13 +655,23 @@ export default function LandingPage() {
                               <div className="whitespace-nowrap overflow-hidden text-ellipsis text-sm font-mono bg-gray-100 px-2 py-3 rounded-l-md border-y border-l" style={{maxWidth: '40%'}}>
                                 {baseUrl}/
                               </div>
-                              <Input
-                                id="customShortCode"
-                                value={customShortCode}
-                                onChange={(e) => setCustomShortCode(e.target.value)}
-                                placeholder="custom-code (optional)"
-                                className="text-sm font-mono border-2 py-2 rounded-l-none focus-visible:ring-primary flex-grow"
-                              />
+                              <div className="flex-grow flex flex-col">
+                                <Input
+                                  id="customShortCode"
+                                  value={customShortCode}
+                                  onChange={(e) => {
+                                    setCustomShortCode(e.target.value);
+                                    setCustomShortCodeError("");
+                                  }}
+                                  placeholder="custom-code (optional)"
+                                  className={`text-sm font-mono border-2 py-2 rounded-l-none focus-visible:ring-primary w-full ${customShortCodeError ? "border-red-500" : ""}`}
+                                />
+                                {customShortCodeError && (
+                                  <p className="text-xs text-red-500 mt-1">
+                                    {customShortCodeError}
+                                  </p>
+                                )}
+                              </div>
                             </div>
                           </div>
                         )}
