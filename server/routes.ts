@@ -365,8 +365,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // We'll go back to the /r/ path for now to fix the application
-  // This is the safer approach to prevent route conflicts
+  // This middleware will handle root-level shortcode URLs
+  app.use('/:shortCode', async (req, res, next) => {
+    const { shortCode } = req.params;
+    
+    // Skip specific paths that should be handled by other routes
+    // This is crucial to prevent the shortcode handler from catching app routes
+    if (shortCode === 'app' || 
+        shortCode === 'api' || 
+        shortCode === 'assets' ||
+        shortCode === 'not-found' ||
+        shortCode.includes('.')) {
+      return next();
+    }
+
+    // Only process GET requests for the shortcode
+    if (req.method !== 'GET') {
+      return next();
+    }
+    
+    try {
+      const url = await storage.getUrlByShortCode(shortCode);
+      
+      if (!url || !url.isActive) {
+        return res.redirect(`/not-found?code=${shortCode}`);
+      }
+      
+      // Increment click count
+      await storage.incrementUrlClicks(url.id);
+      
+      // Redirect to the original URL
+      return res.redirect(url.originalUrl);
+    } catch (error) {
+      console.error('Error processing shortcode redirect:', error);
+      return next(); // Let other handlers deal with this path
+    }
+  });
+  
+  // Keep legacy /r/ path for backward compatibility
   app.get("/r/:shortCode", async (req, res) => {
     const { shortCode } = req.params;
     

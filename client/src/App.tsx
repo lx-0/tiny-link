@@ -81,7 +81,14 @@ function Router() {
         </SimpleLayout>
       </Route>
       
-      {/* Handle shortened URLs */}
+      {/* Handle shortened URLs at root level */}
+      <Route path="/:shortCode">
+        <SimpleLayout>
+          <RedirectPage />
+        </SimpleLayout>
+      </Route>
+      
+      {/* Legacy path for backward compatibility */}
       <Route path="/r/:shortCode">
         <SimpleLayout>
           <RedirectPage />
