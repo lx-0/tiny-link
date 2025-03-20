@@ -11,8 +11,10 @@ services:
       - "5000:5000"
     environment:
       - NODE_ENV=production
-    env_file:
-      - .env.production
+      - SUPABASE_DATABASE_URL=postgres://postgres:postgres@db:5432/tinylink
+      - DB_SCHEMA=tinylink
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
     depends_on:
       - db
     command: npm start
@@ -22,9 +24,9 @@ services:
     image: postgres:16-alpine
     restart: always
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=tinylink
     volumes:
       - postgres_data:/var/lib/postgresql/data
     # Not exposing the database port in production for security
@@ -35,8 +37,9 @@ services:
       context: .
       dockerfile: Dockerfile
     command: node create-schema.js
-    env_file:
-      - .env.production
+    environment:
+      - SUPABASE_DATABASE_URL=postgres://postgres:postgres@db:5432/tinylink
+      - DB_SCHEMA=tinylink
     depends_on:
       - db
     restart: on-failure

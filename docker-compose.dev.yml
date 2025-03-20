@@ -13,8 +13,10 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=development
-    env_file:
-      - .env.development
+      - SUPABASE_DATABASE_URL=postgres://postgres:postgres@db:5432/tinylink
+      - DB_SCHEMA=tinylink
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
     command: npm run dev
     depends_on:
       - db
@@ -27,9 +29,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-tinylink}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-tinylink_password}
-      - POSTGRES_DB=${POSTGRES_DB:-tinylink}
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=tinylink
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -42,8 +44,9 @@ services:
       - .:/app
       - /app/node_modules
     command: node create-schema.js
-    env_file:
-      - .env.development
+    environment:
+      - SUPABASE_DATABASE_URL=postgres://postgres:postgres@db:5432/tinylink
+      - DB_SCHEMA=tinylink
     depends_on:
       - db
     restart: on-failure
