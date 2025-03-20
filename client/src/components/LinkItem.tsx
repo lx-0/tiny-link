@@ -141,146 +141,149 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
   };
   
   return (
-    <li className="relative bg-white border border-gray-200 rounded-lg mb-4 overflow-hidden hover:shadow-md transition-shadow">
-      {/* Top section with original URL and stats */}
-      <div className="p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 gap-2">
-          <h3 className="text-md font-medium text-primary truncate max-w-full sm:max-w-[60%]">
-            {url.originalUrl}
-          </h3>
-          <div className="flex items-center space-x-2 self-start sm:self-center">
-            <Badge variant={url.isActive ? "default" : "outline"}>
-              {url.isActive ? 'Active' : 'Inactive'}
-            </Badge>
-            <div className="inline-flex items-center px-2 py-1 rounded-md text-sm font-medium bg-blue-100 text-blue-800">
-              <svg className="-ml-0.5 mr-1 h-4 w-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              {url.clicks} clicks
+    <li className="mb-4">
+      {/* Card with content and buttons - no nested borders */}
+      <div className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+        {/* Top section with original URL and stats */}
+        <div className="p-4 bg-white">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 gap-2">
+            <h3 className="text-md font-medium text-primary truncate max-w-full sm:max-w-[60%]">
+              {url.originalUrl}
+            </h3>
+            <div className="flex items-center space-x-2 self-start sm:self-center">
+              <Badge variant={url.isActive ? "default" : "outline"}>
+                {url.isActive ? 'Active' : 'Inactive'}
+              </Badge>
+              <div className="inline-flex items-center px-2 py-1 rounded-md text-sm font-medium bg-blue-100 text-blue-800">
+                <svg className="-ml-0.5 mr-1 h-4 w-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                {url.clicks} clicks
+              </div>
             </div>
           </div>
-        </div>
-        
-        {/* Date created */}
-        <div className="text-sm text-gray-500 mb-2">
-          Created {formattedDate}
-        </div>
-        
-        {/* Shortened URL with copy button */}
-        <div className="bg-gray-50 p-2 rounded-md mb-0">
-          <div className="text-sm text-gray-700 mb-1">
-            Shortened URL:
+          
+          {/* Date created */}
+          <div className="text-sm text-gray-500 mb-2">
+            Created {formattedDate}
           </div>
-          <div className="flex items-center">
-            <div className="flex-1 overflow-hidden">
-              <a 
-                href={fullShortUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-sm font-medium text-primary hover:text-blue-600 truncate block"
-                onClick={(e) => {
-                  e.preventDefault();
-                  window.open(fullShortUrl, '_blank');
-                }}
+          
+          {/* Shortened URL with copy button */}
+          <div className="bg-gray-50 p-2 rounded-md">
+            <div className="text-sm text-gray-700 mb-1">
+              Shortened URL:
+            </div>
+            <div className="flex items-center">
+              <div className="flex-1 overflow-hidden">
+                <a 
+                  href={fullShortUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-sm font-medium text-primary hover:text-blue-600 truncate block"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.open(fullShortUrl, '_blank');
+                  }}
+                >
+                  {fullShortUrl}
+                </a>
+              </div>
+              <button 
+                onClick={handleCopy}
+                className="ml-2 p-1 text-gray-500 hover:text-primary flex-shrink-0"
+                aria-label="Copy to clipboard"
               >
-                {fullShortUrl}
-              </a>
+                <Clipboard className="h-5 w-5" />
+              </button>
             </div>
-            <button 
-              onClick={handleCopy}
-              className="ml-2 p-1 text-gray-500 hover:text-primary flex-shrink-0"
-              aria-label="Copy to clipboard"
-            >
-              <Clipboard className="h-5 w-5" />
-            </button>
           </div>
         </div>
-      </div>
-      
-      {/* Action buttons row - without border overlap */}
-      <div className="flex">
-        <Dialog onOpenChange={(open) => {
-          if (open) handleQrCodeDialogOpen();
-        }}>
-          <DialogTrigger asChild>
-            <button className="flex-1 py-3 flex items-center justify-center text-sm text-gray-700 hover:bg-gray-100 border-t border-r border-gray-200">
-              <QrCode className="h-4 w-4 mr-2" />
-              QR Code
-            </button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>QR Code for {url.shortCode}</DialogTitle>
-              <DialogDescription>
-                Scan this QR code to access your shortened URL. You can also download it in different formats.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex flex-col items-center justify-center py-4">
-              <div className="border border-gray-200 rounded-lg p-2 bg-white">
-                {isLoadingQrCode && (
-                  <div className="w-64 h-64 flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                  </div>
-                )}
-                
-                {qrCodeError && (
-                  <div className="w-64 h-64 flex items-center justify-center text-center p-4">
-                    <div className="text-red-500">
-                      <p className="font-medium">Error loading QR code</p>
-                      <p className="text-sm mt-2">{qrCodeError}</p>
+        
+        {/* Action buttons row */}
+        <div className="grid grid-cols-3 border-t border-gray-200">
+          <Dialog onOpenChange={(open) => {
+            if (open) handleQrCodeDialogOpen();
+          }}>
+            <DialogTrigger asChild>
+              <button className="py-3 flex items-center justify-center text-sm text-gray-700 hover:bg-gray-50 border-r border-gray-200">
+                <QrCode className="h-4 w-4 mr-2" />
+                QR Code
+              </button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>QR Code for {url.shortCode}</DialogTitle>
+                <DialogDescription>
+                  Scan this QR code to access your shortened URL. You can also download it in different formats.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex flex-col items-center justify-center py-4">
+                <div className="border border-gray-200 rounded-lg p-2 bg-white">
+                  {isLoadingQrCode && (
+                    <div className="w-64 h-64 flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                     </div>
-                  </div>
-                )}
-                
-                {qrCodeSrc && !isLoadingQrCode && !qrCodeError && (
-                  <img 
-                    src={qrCodeSrc} 
-                    alt={`QR Code for ${url.shortCode}`} 
-                    className="w-64 h-64"
-                  />
-                )}
+                  )}
+                  
+                  {qrCodeError && (
+                    <div className="w-64 h-64 flex items-center justify-center text-center p-4">
+                      <div className="text-red-500">
+                        <p className="font-medium">Error loading QR code</p>
+                        <p className="text-sm mt-2">{qrCodeError}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {qrCodeSrc && !isLoadingQrCode && !qrCodeError && (
+                    <img 
+                      src={qrCodeSrc} 
+                      alt={`QR Code for ${url.shortCode}`} 
+                      className="w-64 h-64"
+                    />
+                  )}
+                </div>
+                <div className="mt-4 text-center">
+                  <p className="text-sm text-gray-500 mb-2">This QR code links to:</p>
+                  <p className="text-sm font-medium text-primary">{fullShortUrl}</p>
+                </div>
               </div>
-              <div className="mt-4 text-center">
-                <p className="text-sm text-gray-500 mb-2">This QR code links to:</p>
-                <p className="text-sm font-medium text-primary">{fullShortUrl}</p>
+              <div className="flex justify-center space-x-4 mt-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => downloadQrCode('svg')}
+                  disabled={isLoadingQrCode}
+                >
+                  Download SVG
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => downloadQrCode('png')}
+                  disabled={isLoadingQrCode}
+                >
+                  Download PNG
+                </Button>
               </div>
-            </div>
-            <div className="flex justify-center space-x-4 mt-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => downloadQrCode('svg')}
-                disabled={isLoadingQrCode}
-              >
-                Download SVG
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => downloadQrCode('png')}
-                disabled={isLoadingQrCode}
-              >
-                Download PNG
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-        
-        <button 
-          onClick={() => onEdit(url)}
-          className="flex-1 py-3 flex items-center justify-center text-sm text-gray-700 hover:bg-gray-100 border-t border-r border-gray-200"
-        >
-          <Edit className="h-4 w-4 mr-2" />
-          Edit
-        </button>
-        
-        <button 
-          onClick={() => onDelete(url)}
-          className="flex-1 py-3 flex items-center justify-center text-sm text-red-600 hover:bg-red-50 border-t border-gray-200"
-        >
-          <Trash2 className="h-4 w-4 mr-2" />
-          Delete
-        </button>
+            </DialogContent>
+          </Dialog>
+          
+          <button 
+            onClick={() => onEdit(url)}
+            className="py-3 flex items-center justify-center text-sm text-gray-700 hover:bg-gray-50 border-r border-gray-200"
+          >
+            <Edit className="h-4 w-4 mr-2" />
+            Edit
+          </button>
+          
+          <button 
+            onClick={() => onDelete(url)}
+            className="py-3 flex items-center justify-center text-sm text-red-600 hover:bg-red-50"
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete
+          </button>
+        </div>
       </div>
     </li>
   );
