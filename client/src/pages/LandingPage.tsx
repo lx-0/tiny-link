@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,18 @@ import { Label } from "@/components/ui/label";
 import { nanoid } from "nanoid";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ChevronDown, LogOut, Settings, User as UserIcon } from "lucide-react";
+import { 
+  Loader2, 
+  ChevronDown, 
+  LogOut, 
+  Settings, 
+  User as UserIcon, 
+  Copy, 
+  Share2, 
+  QrCode,
+  ArrowRight,
+  RefreshCw
+} from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import NormalizedLink from "@/components/ui/normalized-link";
 import {
@@ -24,18 +35,81 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useClipboard } from "@/hooks/useClipboard";
+import QRCode from 'qrcode';
 
 export default function LandingPage() {
   const { isAuthenticated, user, logout } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const { copy } = useClipboard();
   const [url, setUrl] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const [shortUrl, setShortUrl] = useState("");
+  const [showResult, setShowResult] = useState(false);
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   
   // Handle sign out
   const handleSignOut = async () => {
     await logout();
     navigate("/");
+  };
+
+  // Generate QR code for the shortened URL
+  const generateQRCode = async (url: string) => {
+    try {
+      const dataUrl = await QRCode.toDataURL(url, {
+        width: 200,
+        margin: 1,
+        color: {
+          dark: '#000',
+          light: '#fff'
+        }
+      });
+      setQrCodeDataUrl(dataUrl);
+    } catch (err) {
+      console.error("Error generating QR code:", err);
+    }
+  };
+
+  // Reset the URL form and hide results
+  const handleReset = () => {
+    setUrl("");
+    setShortUrl("");
+    setShowResult(false);
+    setQrCodeDataUrl("");
+  };
+
+  // Share the shortened URL
+  const handleShare = async () => {
+    if (navigator.share && shortUrl) {
+      try {
+        await navigator.share({
+          title: 'Check out this link',
+          text: 'I shortened this URL with TinyLink',
+          url: shortUrl
+        });
+      } catch (error) {
+        console.error('Error sharing:', error);
+        // Fallback to copy to clipboard
+        handleCopy();
+      }
+    } else {
+      // Fallback to copy to clipboard
+      handleCopy();
+    }
+  };
+
+  // Copy the shortened URL to clipboard
+  const handleCopy = () => {
+    if (shortUrl) {
+      copy(shortUrl);
+      toast({
+        title: "Copied to clipboard",
+        description: shortUrl,
+      });
+    }
   };
 
   const handleQuickCreate = async () => {
@@ -47,6 +121,9 @@ export default function LandingPage() {
       });
       return;
     }
+
+    // Hide any previous results
+    setShowResult(false);
 
     // Basic URL validation
     let originalUrl = url;
@@ -78,24 +155,23 @@ export default function LandingPage() {
       });
 
       if (response) {
+        // Create the full URL
+        const baseUrl = window.location.origin;
+        const fullUrl = `${baseUrl}/${shortCode}`;
+        
+        // Update state with the new short URL
+        setShortUrl(fullUrl);
+        
+        // Generate QR code
+        await generateQRCode(fullUrl);
+        
+        // Show result view
+        setShowResult(true);
+        
         // Show success message
         toast({
           title: "URL shortened!",
           description: "Your URL has been shortened successfully.",
-        });
-
-        // Reset form
-        setUrl("");
-
-        // Copy to clipboard
-        const baseUrl = window.location.origin;
-        const fullUrl = `${baseUrl}/${shortCode}`;
-        navigator.clipboard.writeText(fullUrl);
-
-        // Show copied message
-        toast({
-          title: "Copied to clipboard",
-          description: fullUrl,
         });
       }
     } catch (error) {
@@ -290,27 +366,92 @@ export default function LandingPage() {
                 </CardHeader>
 
                 <CardContent className="flex flex-col space-y-4 pt-4">
-                  <div className="flex space-x-2">
-                    <Button
-                      className="flex-1 py-6"
-                      onClick={handleQuickCreate}
-                      disabled={isCreating || !url}
-                    >
-                      {isCreating ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Creating...
-                        </>
-                      ) : (
-                        "Shorten URL"
-                      )}
-                    </Button>
-                  </div>
+                  {showResult ? (
+                    <div className="space-y-5">
+                      <div>
+                        <Label htmlFor="shortUrl" className="text-sm font-medium mb-1 flex items-center">
+                          <ArrowRight className="w-4 h-4 mr-2" /> 
+                          Your shortened URL
+                        </Label>
+                        <div className="flex items-center mt-1">
+                          <Input
+                            id="shortUrl"
+                            value={shortUrl}
+                            readOnly
+                            className="text-sm font-mono bg-gray-50 border-2 py-5 focus-visible:ring-primary flex-1"
+                          />
+                        </div>
+                      </div>
 
-                  {!isAuthenticated && (
-                    <div className="text-center text-xs text-gray-500">
-                      <p>Sign in to access all features</p>
+                      <div className="flex flex-col space-y-3">
+                        <div className="flex justify-center">
+                          {qrCodeDataUrl && (
+                            <div className="bg-white p-3 rounded-md border shadow-sm">
+                              <img 
+                                src={qrCodeDataUrl} 
+                                alt="QR Code" 
+                                className="w-32 h-32 mx-auto" 
+                              />
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="flex space-x-2 justify-center">
+                          <Button 
+                            className="flex-1" 
+                            variant="outline" 
+                            size="sm"
+                            onClick={handleCopy}
+                          >
+                            <Copy className="mr-2 h-4 w-4" />
+                            Copy
+                          </Button>
+                          <Button 
+                            className="flex-1" 
+                            variant="outline"
+                            size="sm" 
+                            onClick={handleShare}
+                          >
+                            <Share2 className="mr-2 h-4 w-4" />
+                            Share
+                          </Button>
+                          <Button 
+                            className="flex-1" 
+                            variant="outline"
+                            size="sm" 
+                            onClick={handleReset}
+                          >
+                            <RefreshCw className="mr-2 h-4 w-4" />
+                            New
+                          </Button>
+                        </div>
+                      </div>
                     </div>
+                  ) : (
+                    <>
+                      <div className="flex space-x-2">
+                        <Button
+                          className="flex-1 py-6"
+                          onClick={handleQuickCreate}
+                          disabled={isCreating || !url}
+                        >
+                          {isCreating ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Creating...
+                            </>
+                          ) : (
+                            "Shorten URL"
+                          )}
+                        </Button>
+                      </div>
+
+                      {!isAuthenticated && (
+                        <div className="text-center text-xs text-gray-500">
+                          <p>Sign in to access all features</p>
+                        </div>
+                      )}
+                    </>
                   )}
                 </CardContent>
 
