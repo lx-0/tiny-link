@@ -57,7 +57,7 @@ export default function Login() {
       });
       
       // Navigate directly to dashboard
-      navigate('/dashboard');
+      navigate('/app/dashboard');
     } catch (error: any) {
       toast({
         title: 'Login failed',
@@ -78,7 +78,7 @@ export default function Login() {
             <CardDescription className="text-center">
               Or{' '}
               <NormalizedLink
-                href="/register"
+                href="/app/register"
                 className="font-medium text-primary hover:text-blue-500"
               >
                 create a new account
@@ -153,7 +153,7 @@ export default function Login() {
                   />
                   
                   <NormalizedLink
-                    href="/forgot-password"
+                    href="/app/forgot-password"
                     className="text-sm font-medium text-primary hover:text-blue-500"
                   >
                     Forgot your password?

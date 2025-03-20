@@ -58,7 +58,7 @@ export default function Register() {
         title: 'Registration successful',
         description: 'Your account has been created. You can now sign in.',
       });
-      navigate('/login');
+      navigate('/app/login');
     } catch (error: any) {
       // Check if this is a "User already registered" error from Supabase
       if (error.message && (
@@ -83,7 +83,7 @@ export default function Register() {
               title: 'Account recovered',
               description: 'Your account has been restored. You can now continue using the app.',
             });
-            navigate('/dashboard');
+            navigate('/app/dashboard');
             return;
           }
         } catch (signInError: any) {
@@ -206,10 +206,10 @@ export default function Register() {
                 <div className="text-center text-sm">
                   Already have an account?{' '}
                   <a 
-                    href="/login" 
+                    href="/app/login" 
                     onClick={(e) => {
                       e.preventDefault();
-                      navigate('/login');
+                      navigate('/app/login');
                     }}
                     className="font-medium text-primary hover:text-blue-500"
                   >
