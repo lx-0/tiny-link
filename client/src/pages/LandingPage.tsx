@@ -58,6 +58,8 @@ export default function LandingPage() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [shortUrl, setShortUrl] = useState("");
   const [showResult, setShowResult] = useState(false);
+  const [shortCodeError, setShortCodeError] = useState("");
+  const [customShortCodeError, setCustomShortCodeError] = useState("");
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
   const [showQrCode, setShowQrCode] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
@@ -130,21 +132,16 @@ export default function LandingPage() {
 
   // Handle updating an existing shortcode
   const handleUpdateShortcode = async () => {
+    // Clear previous errors
+    setShortCodeError("");
+    
     if (!shortCode) {
-      toast({
-        title: "Shortcode is required",
-        description: "Please enter a shortcode",
-        variant: "destructive",
-      });
+      setShortCodeError("Shortcode is required");
       return;
     }
     
     if (shortCode.length < 5) {
-      toast({
-        title: "Shortcode too short",
-        description: "Shortcodes must be at least 5 characters long",
-        variant: "destructive",
-      });
+      setShortCodeError("Shortcodes must be at least 5 characters long");
       return;
     }
 
@@ -500,7 +497,46 @@ export default function LandingPage() {
                         onChange={(e) => setUrl(e.target.value)}
                       />
                     </div>
-                    <div className="flex items-center space-x-2 text-sm text-gray-500">
+                    <div className="flex gap-2">
+                      <Button 
+                        type="submit" 
+                        className="w-full bg-primary text-white hover:bg-primary/90"
+                        disabled={isCreating || !url}
+                      >
+                        {isCreating ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Shortening...
+                          </>
+                        ) : (
+                          <>
+                            <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                            Shorten URL
+                          </>
+                        )}
+                      </Button>
+                      
+                      {isAuthenticated && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => navigate("/app/dashboard")}
+                          className="whitespace-nowrap"
+                        >
+                          <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19 11H5M19 11C20.1046 11 21 11.8954 21 13V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V13C3 11.8954 3.89543 11 5 11M19 11V9C19 7.89543 18.1046 7 17 7M5 11V9C5 7.89543 5.89543 7 7 7M7 7V5C7 3.89543 7.89543 3 9 3H15C16.1046 3 17 3.89543 17 5V7M7 7H17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          My Links
+                        </Button>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center space-x-2 text-sm text-gray-500 mt-2">
                       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM11 7V9H13V7H11ZM11 11V17H13V11H11ZM4 12C4 16.41 7.59 20 12 20C16.41 20 20 16.41 20 12C20 7.59 16.41 4 12 4C7.59 4 4 7.59 4 12Z" fill="currentColor"/>
                       </svg>
