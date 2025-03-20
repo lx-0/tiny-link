@@ -150,15 +150,20 @@ TinyLink can be configured via environment variables:
 
 ```env
 # Database configuration
-DATABASE_URL=postgres://user:password@localhost:5432/tinylink
+POSTGRES_USER=tinylink
+POSTGRES_PASSWORD=your_password
+POSTGRES_DB=tinylink
 
-# Server configuration
-PORT=5000
-BASE_URL=http://localhost:5000
+# Supabase and database connection
+SUPABASE_DATABASE_URL=postgres://user:password@localhost:5432/tinylink
+DB_SCHEMA=tinylink
 
-# Authentication (Supabase)
-SUPABASE_URL=your-supabase-url
-SUPABASE_ANON_KEY=your-supabase-anon-key
+# Supabase authentication
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Application settings
+NODE_ENV=development
 ```
 
 ### Docker Configuration
@@ -170,12 +175,35 @@ Two Docker Compose configurations are provided:
    - Source code is mounted as volumes
    - PostgreSQL database with exposed port
    - Uses `.env.development` for configuration
+   - Automatic database schema initialization
 
 2. **Production** (`docker-compose.yml`):
    - Optimized build with minimized dependencies
    - Database ports not exposed to the internet
    - Uses `.env.production` for configuration
    - Automatic container restarts
+   - Database initialization service for first-time setup
+
+### Running with Docker
+
+To run the development version:
+```bash
+# Copy the sample environment file first
+cp .env.development.sample .env.development
+
+# Edit the environment variables as needed
+nano .env.development
+
+# Start the services
+docker-compose -f docker-compose.dev.yml up
+```
+
+For production:
+```bash
+cp .env.production.sample .env.production
+nano .env.production
+docker-compose up -d
+```
 
 ## 🤝 Contributing
 

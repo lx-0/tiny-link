@@ -17,6 +17,7 @@ services:
     command: npm run dev
     depends_on:
       - db
+      - db-init
 
   db:
     image: postgres:16-alpine
@@ -29,6 +30,25 @@ services:
       - POSTGRES_DB=${POSTGRES_DB:-tinylink}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  # Initialize database tables and schema
+  db-init:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: node create-schema.js
+    env_file:
+      - .env.development
+    depends_on:
+      - db
+    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
 
 volumes:
   postgres_data:

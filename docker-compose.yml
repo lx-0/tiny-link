@@ -26,5 +26,21 @@ services:
       - postgres_data:/var/lib/postgresql/data
     # Not exposing the database port in production for security
 
+  # Initialize database tables and schema
+  db-init:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: node create-schema.js
+    env_file:
+      - .env.production
+    depends_on:
+      - db
+    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+
 volumes:
   postgres_data:
