@@ -9,13 +9,13 @@ export default function Footer() {
           {/* Links */}
           <div className="flex space-x-6 mb-4 md:mb-0">
             <Link href="/about">
-              <a className="text-gray-600 hover:text-gray-800 transition-colors">About</a>
+              <span className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer">About</span>
             </Link>
             <Link href="/terms">
-              <a className="text-gray-600 hover:text-gray-800 transition-colors">Terms</a>
+              <span className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer">Terms</span>
             </Link>
             <Link href="/privacy">
-              <a className="text-gray-600 hover:text-gray-800 transition-colors">Privacy</a>
+              <span className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer">Privacy</span>
             </Link>
           </div>
           
