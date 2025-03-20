@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 export default function Footer() {
   const { isAuthenticated } = useAuth();
-  
+
   return (
     <footer className="bg-gray-100 py-6 mt-auto border-t">
       <div className="container mx-auto px-4">
@@ -12,22 +12,34 @@ export default function Footer() {
           {/* Links */}
           <div className="flex space-x-6 mb-4 md:mb-0">
             <Link href="/about">
-              <span className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
+              <span
+                className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer"
+                onClick={() => window.scrollTo(0, 0)}
+              >
                 About
               </span>
             </Link>
             <Link href="/terms">
-              <span className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
+              <span
+                className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer"
+                onClick={() => window.scrollTo(0, 0)}
+              >
                 Terms
               </span>
             </Link>
             <Link href="/privacy">
-              <span className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
+              <span
+                className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer"
+                onClick={() => window.scrollTo(0, 0)}
+              >
                 Privacy
               </span>
             </Link>
             <Link href={isAuthenticated ? "/app/dashboard" : "/app/login"}>
-              <span className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
+              <span
+                className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer"
+                onClick={() => window.scrollTo(0, 0)}
+              >
                 Dashboard
               </span>
             </Link>
@@ -49,7 +61,7 @@ export default function Footer() {
 
         <div className="mt-4 text-center text-sm text-gray-500">
           &copy; {new Date().getFullYear()} TinyLink - An open-source URL
-          shortener. All rights reserved.
+          shortener.
         </div>
       </div>
     </footer>

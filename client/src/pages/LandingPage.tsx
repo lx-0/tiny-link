@@ -15,15 +15,28 @@ import { Label } from "@/components/ui/label";
 import { nanoid } from "nanoid";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronDown, LogOut, Settings, User as UserIcon } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
+import NormalizedLink from "@/components/ui/normalized-link";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function LandingPage() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [url, setUrl] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  
+  // Handle sign out
+  const handleSignOut = async () => {
+    await logout();
+    navigate("/");
+  };
 
   const handleQuickCreate = async () => {
     if (!url) {
@@ -99,6 +112,72 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Navbar */}
+      <nav className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex items-center">
+              <div className="flex-shrink-0 flex items-center">
+                <svg className="h-8 w-8 text-primary" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M13.5 3H12H8C6.34315 3 5 4.34315 5 6V18C5 19.6569 6.34315 21 8 21H16C17.6569 21 19 19.6569 19 18V8.5M13.5 3L19 8.5M13.5 3V7C13.5 7.82843 14.1716 8.5 15 8.5H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M9 17H15M9 13H15M9 9H10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span className="ml-2 text-xl font-bold text-gray-900">TinyLink</span>
+              </div>
+            </div>
+            
+            {user ? (
+              <div className="flex items-center">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="flex items-center gap-2">
+                      <div className="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center">
+                        <span className="text-sm font-medium">
+                          {user.email?.charAt(0).toUpperCase() || 'U'}
+                        </span>
+                      </div>
+                      <span className="ml-2 text-sm font-medium text-gray-700 hidden sm:block">
+                        {user.email?.split('@')[0] || 'User'}
+                      </span>
+                      <ChevronDown className="h-4 w-4 text-gray-500" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => navigate("/app/dashboard")}>
+                      <UserIcon className="mr-2 h-4 w-4" />
+                      <span>Dashboard</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleSignOut}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Sign out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" className="text-gray-700" asChild
+                  onClick={() => {
+                    window.scrollTo(0, 0);
+                    navigate("/app/login");
+                  }}
+                >
+                  <span>Log in</span>
+                </Button>
+                <Button className="bg-primary text-white hover:bg-primary/90"
+                  onClick={() => {
+                    window.scrollTo(0, 0);
+                    navigate("/app/register");
+                  }}
+                >
+                  <span>Sign up</span>
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      </nav>
+
       {/* Hero section */}
       <div className="bg-primary text-white py-16 md:py-24">
         <div className="container mx-auto px-4 max-w-6xl">
@@ -228,46 +307,42 @@ export default function LandingPage() {
                     </Button>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="py-5 text-xs" 
-                      onClick={() => {
-                        window.scrollTo(0, 0);
-                        navigate(isAuthenticated ? "/app/dashboard" : "/app/login");
-                      }}
-                    >
-                      {isAuthenticated ? "My Links" : "Sign In"}
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="py-5 text-xs"
-                      onClick={() => {
-                        window.scrollTo(0, 0);
-                        navigate(isAuthenticated ? "/app/dashboard" : "/app/register");
-                      }}
-                    >
-                      {isAuthenticated ? "Create New" : "Create Account"}
-                    </Button>
-                  </div>
+                  {!isAuthenticated && (
+                    <div className="text-center text-xs text-gray-500">
+                      <p>Sign in to access all features</p>
+                    </div>
+                  )}
                 </CardContent>
 
                 <CardFooter className="bg-gray-50 mt-2 text-xs text-gray-500 flex justify-center border-t pt-3">
-                  <div className="flex space-x-3">
-                    <span className="flex items-center">
-                      <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 16V12M12 8H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      Custom codes with account
-                    </span>
-                    <span className="flex items-center">
-                      <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9 12H15M7 8H17M11 16H13M6 20H18C19.1046 20 20 19.1046 20 18V6C20 4.89543 19.1046 4 18 4H6C4.89543 4 4 4.89543 4 6V18C4 19.1046 4.89543 20 6 20Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      Free tracking analytics
-                    </span>
+                  <div className="flex flex-col space-y-2 items-center">
+                    <div className="flex space-x-3">
+                      <span className="flex items-center">
+                        <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 16V12M12 8H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        Custom codes require account
+                      </span>
+                      <span className="flex items-center">
+                        <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M9 12H15M7 8H17M11 16H13M6 20H18C19.1046 20 20 19.1046 20 18V6C20 4.89543 19.1046 4 18 4H6C4.89543 4 4 4.89543 4 6V18C4 19.1046 4.89543 20 6 20Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        Analytics with account
+                      </span>
+                    </div>
+                    {!isAuthenticated && (
+                      <div className="text-primary/80 font-medium">
+                        <span 
+                          className="cursor-pointer hover:underline" 
+                          onClick={() => {
+                            window.scrollTo(0, 0);
+                            navigate("/app/register");
+                          }}
+                        >
+                          Create free account
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </CardFooter>
               </Card>
