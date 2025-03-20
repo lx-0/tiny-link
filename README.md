@@ -26,6 +26,8 @@
 
 ## 🚀 Quick Start
 
+### Standard Installation
+
 ```bash
 # Clone the repo
 git clone https://github.com/lx-0/tinylink.git
@@ -34,20 +36,54 @@ cd tinylink
 # Install dependencies
 npm install
 
-# Setup environment variables (see .env.example)
-cp .env.example .env
+# Setup environment variables
+cp .env.development.sample .env.development
 
 # Start the development server
 npm run dev
+```
+
+### Using Docker (Development)
+
+```bash
+# Clone the repo
+git clone https://github.com/lx-0/tinylink.git
+cd tinylink
+
+# Copy environment variables for development
+cp .env.development.sample .env.development
+
+# Start the development environment
+docker-compose -f docker-compose.dev.yml up
+```
+
+### Using Docker (Production)
+
+```bash
+# Clone the repo
+git clone https://github.com/lx-0/tinylink.git
+cd tinylink
+
+# Copy and edit production environment variables
+cp .env.production.sample .env.production
+# Edit .env.production with your secure settings
+
+# Start the production environment
+docker-compose up -d
 ```
 
 Visit `http://localhost:5000` in your browser.
 
 ## 📋 Requirements
 
+### Standard Installation
 - Node.js 18+
 - PostgreSQL 15+
 - Modern web browser
+
+### Docker Installation (Alternative)
+- Docker
+- Docker Compose
 
 ## 🧩 Technology Stack
 
@@ -124,6 +160,22 @@ BASE_URL=http://localhost:5000
 SUPABASE_URL=your-supabase-url
 SUPABASE_ANON_KEY=your-supabase-anon-key
 ```
+
+### Docker Configuration
+
+Two Docker Compose configurations are provided:
+
+1. **Development** (`docker-compose.dev.yml`):
+   - Hot-reloading enabled
+   - Source code is mounted as volumes
+   - PostgreSQL database with exposed port
+   - Uses `.env.development` for configuration
+
+2. **Production** (`docker-compose.yml`):
+   - Optimized build with minimized dependencies
+   - Database ports not exposed to the internet
+   - Uses `.env.production` for configuration
+   - Automatic container restarts
 
 ## 🤝 Contributing
 

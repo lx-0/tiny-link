@@ -1,0 +1,12 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install dependencies only
+COPY package*.json ./
+RUN npm install
+
+# Configure for development - the rest of the files will be mounted as volumes
+EXPOSE 5000
+
+CMD ["npm", "run", "dev"]
