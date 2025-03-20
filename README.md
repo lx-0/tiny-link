@@ -40,49 +40,20 @@ TinyLink is a **100% open-source alternative** to commercial URL shortening serv
 
 ### Standard Installation
 
-```bash
-# Clone the repo
-git clone https://github.com/lx-0/tiny-link.git
-cd tinylink
+1. Clone the repository
+2. Install dependencies with `npm install`
+3. Copy `.env.development.sample` to `.env.development`
+4. Start the development server with `npm run dev`
 
-# Install dependencies
-npm install
+### Using Docker
 
-# Setup environment variables
-cp .env.development.sample .env.development
-
-# Start the development server
-npm run dev
-```
-
-### Using Docker (Development)
-
-```bash
-# Clone the repo
-git clone https://github.com/lx-0/tiny-link.git
-cd tinylink
-
-# Copy environment variables for development
-cp .env.development.sample .env.development
-
-# Start the development environment
-docker-compose -f docker-compose.dev.yml up
-```
-
-### Using Docker (Production)
-
-```bash
-# Clone the repo
-git clone https://github.com/lx-0/tiny-link.git
-cd tinylink
-
-# Copy and edit production environment variables
-cp .env.production.sample .env.production
-# Edit .env.production with your secure settings
-
-# Start the production environment
-docker-compose up -d
-```
+1. Clone the repository
+2. For development: 
+   - Copy `.env.development.sample` to `.env.development`
+   - Run `docker-compose -f docker-compose.dev.yml up`
+3. For production:
+   - Copy `.env.production.sample` to `.env.production` and edit settings
+   - Run `docker-compose up -d`
 
 Visit `http://localhost:5000` in your browser.
 
@@ -108,16 +79,9 @@ Visit `http://localhost:5000` in your browser.
 ## 🔍 Features in Detail
 
 ### URL Management
-```typescript
-// Create a new short URL
-const createUrl = async (originalUrl, customCode = '') => {
-  const newUrl = await apiRequest('POST', '/api/urls', { 
-    originalUrl,
-    shortCode: customCode || undefined
-  });
-  return newUrl;
-};
-```
+- Create short URLs with either auto-generated or custom codes
+- Manage and organize your shortened links in one place
+- Simple API for programmatic URL creation and management
 
 ### Analytics Dashboard
 Track clicks, referrers, and geographical data for your links with our built-in analytics:
@@ -134,44 +98,12 @@ Create and manage user accounts with different permission levels:
 - Admin users can view and manage all links in the system
 - Set custom expiration dates for links
 
-## 🧪 Example Usage
-
-Here's how to use TinyLink in your applications:
-
-```javascript
-// Generate a short URL
-const response = await fetch('/api/urls', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'x-user-id': 'your-user-id'
-  },
-  body: JSON.stringify({
-    originalUrl: 'https://example.com/very/long/url/that/needs/shortening',
-    shortCode: 'custom-code' // Optional
-  })
-});
-
-const data = await response.json();
-// data.shortUrl = 'http://yourdomain.com/custom-code'
-```
-
 ## 🛠️ Configuration
 
-TinyLink can be configured via environment variables:
+TinyLink can be configured via environment variables provided in the sample files:
 
-```env
-# Supabase and database connection
-SUPABASE_DATABASE_URL=postgres://user:password@localhost:5432/tinylink
-DB_SCHEMA=tinylink
-
-# Supabase authentication
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-
-# Application settings
-NODE_ENV=development
-```
+- `.env.development.sample` - Template for development configuration
+- `.env.production.sample` - Template for production configuration
 
 ### Docker Configuration
 
@@ -180,37 +112,13 @@ Two Docker Compose configurations are provided:
 1. **Development** (`docker-compose.dev.yml`):
    - Hot-reloading enabled
    - Source code is mounted as volumes
-   - PostgreSQL database with exposed port
-   - Uses `.env.development` for configuration
    - Automatic database schema initialization
 
 2. **Production** (`docker-compose.yml`):
    - Optimized build with minimized dependencies
    - Database ports not exposed to the internet
-   - Uses `.env.production` for configuration
    - Automatic container restarts
    - Database initialization service for first-time setup
-
-### Running with Docker
-
-To run the development version:
-```bash
-# Copy the sample environment file first
-cp .env.development.sample .env.development
-
-# Edit the environment variables as needed
-nano .env.development
-
-# Start the services
-docker-compose -f docker-compose.dev.yml up
-```
-
-For production:
-```bash
-cp .env.production.sample .env.production
-nano .env.production
-docker-compose up -d
-```
 
 ## 🤝 Contributing
 
