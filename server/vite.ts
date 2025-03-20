@@ -44,8 +44,30 @@ export async function setupVite(app: Express, server: Server) {
   });
 
   app.use(vite.middlewares);
-  app.use("*", async (req, res, next) => {
+  app.use(async (req, res, next) => {
     const url = req.originalUrl;
+
+    // Skip processing for API endpoints
+    if (url.startsWith("/api/")) {
+      return next();
+    }
+
+    // Path-specific exclusions for non-SPA routes
+    const shortPath = url.split("/")[1];
+
+    // Is this a shortcode? If the path looks like a shortcode (not starting with app/),
+    // pass it to the next handler
+    if (
+      shortPath &&
+      shortPath !== "app" &&
+      shortPath !== "src" &&
+      shortPath !== "assets" &&
+      shortPath !== "node_modules" &&
+      !shortPath.includes(".")
+    ) {
+      // This might be a shortcode, let our custom handler process it
+      return next();
+    }
 
     try {
       const clientTemplate = path.resolve(

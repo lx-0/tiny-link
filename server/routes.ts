@@ -377,6 +377,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         shortCode === 'not-found' ||
         shortCode === 'src' ||
         shortCode === 'node_modules' ||
+        shortCode.startsWith('@') || // Skip Vite internal paths like @react-refresh
         shortCode.includes('.')) {
       return next();
     }
