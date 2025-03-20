@@ -63,7 +63,7 @@ export default function LandingPage() {
   const [showQrModal, setShowQrModal] = useState(false);
   const [shortCode, setShortCode] = useState("");
   const [customShortCode, setCustomShortCode] = useState("");
-  const [baseUrl, setBaseUrl] = useState("");
+  const [baseUrl, setBaseUrl] = useState(window.location.origin);
   const [urlId, setUrlId] = useState<number | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
@@ -265,7 +265,56 @@ export default function LandingPage() {
     }
   };
 
-  return (
+  // QR Code modal
+  const renderQrCodeModal = () => {
+    return (
+      <Dialog open={showQrModal} onOpenChange={setShowQrModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>QR Code for your shortened URL</DialogTitle>
+            <DialogDescription>
+              Scan this QR code to access your link, or download it to use elsewhere.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {qrCodeDataUrl && (
+            <div className="flex flex-col items-center justify-center p-4">
+              <div className="bg-white p-4 rounded-lg border shadow-sm mb-4">
+                <img 
+                  src={qrCodeDataUrl} 
+                  alt="QR Code" 
+                  className="w-64 h-64" 
+                />
+              </div>
+              <div className="text-sm text-gray-500 mb-4 text-center">
+                <p>This QR code links to: <span className="font-mono">{`${baseUrl}/${shortCode}`}</span></p>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter className="flex gap-2 sm:justify-center">
+            <Button
+              variant="outline"
+              onClick={handleDownloadQr}
+              className="flex-1"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Download PNG
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => setShowQrModal(false)}
+              className="flex-1"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  };
+  
+  const mainContent = (
     <div className="min-h-screen flex flex-col">
       {/* Navbar */}
       <nav className="bg-white shadow-sm">
@@ -743,5 +792,12 @@ export default function LandingPage() {
         </div>
       </div>
     </div>
+  );
+  
+  return (
+    <>
+      {mainContent}
+      {renderQrCodeModal()}
+    </>
   );
 }
