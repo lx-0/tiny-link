@@ -578,17 +578,26 @@ export default function LandingPage() {
                                   if (shortCode) handleUpdateShortcode();
                                 }}
                               >
-                                <Input
-                                  id="shortCode"
-                                  value={shortCode}
-                                  onChange={(e) => {
-                                    setShortCode(e.target.value);
-                                    // Regenerate QR code when shortcode changes
-                                    generateQRCode(`${baseUrl}/${e.target.value}`);
-                                  }}
-                                  className="text-sm font-mono border-2 py-2 rounded-none focus-visible:ring-primary flex-1"
-                                  placeholder="custom-code"
-                                />
+                                <div className="w-full flex flex-col">
+                                  <Input
+                                    id="shortCode"
+                                    value={shortCode}
+                                    onChange={(e) => {
+                                      setShortCode(e.target.value);
+                                      // Clear any previous errors
+                                      setShortCodeError("");
+                                      // Regenerate QR code when shortcode changes
+                                      generateQRCode(`${baseUrl}/${e.target.value}`);
+                                    }}
+                                    className={`text-sm font-mono border-2 py-2 rounded-none focus-visible:ring-primary w-full ${shortCodeError ? "border-red-500" : ""}`}
+                                    placeholder="custom-code"
+                                  />
+                                  {shortCodeError && (
+                                    <p className="text-xs text-red-500 mt-1">
+                                      {shortCodeError}
+                                    </p>
+                                  )}
+                                </div>
                                 <Button 
                                   variant="outline" 
                                   size="icon"
