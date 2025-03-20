@@ -46,14 +46,14 @@ export default function LandingPage() {
       const shortCode = nanoid(7);
       
       // Create the URL
-      const response = await apiRequest({
-        method: 'POST',
-        url: '/api/urls',
-        data: {
+      const response = await apiRequest(
+        'POST',
+        '/api/urls',
+        {
           originalUrl,
           shortCode
         }
-      });
+      );
       
       if (response) {
         // Show success message
