@@ -1,7 +1,10 @@
 import { FaGithub } from "react-icons/fa";
 import { Link } from "wouter";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Footer() {
+  const { isAuthenticated } = useAuth();
+  
   return (
     <footer className="bg-gray-100 py-6 mt-auto border-t">
       <div className="container mx-auto px-4">
@@ -9,16 +12,27 @@ export default function Footer() {
           {/* Links */}
           <div className="flex space-x-6 mb-4 md:mb-0">
             <Link href="/about">
-              <span className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer">About</span>
+              <span className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer">
+                About
+              </span>
             </Link>
             <Link href="/terms">
-              <span className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer">Terms</span>
+              <span className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer">
+                Terms
+              </span>
             </Link>
             <Link href="/privacy">
-              <span className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer">Privacy</span>
+              <span className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer">
+                Privacy
+              </span>
+            </Link>
+            <Link href={isAuthenticated ? "/app/dashboard" : "/app/login"}>
+              <span className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer">
+                Dashboard
+              </span>
             </Link>
           </div>
-          
+
           {/* Social & Creator */}
           <div className="flex items-center space-x-4 text-gray-600">
             <a
@@ -29,25 +43,13 @@ export default function Footer() {
               aria-label="GitHub Repository"
             >
               <FaGithub className="h-5 w-5" />
-              <span className="ml-2 hidden sm:inline">GitHub</span>
             </a>
-            <span className="text-gray-400">|</span>
-            <div>
-              <span>Created by </span>
-              <a
-                href="https://github.com/lx-0"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium hover:underline text-gray-800"
-              >
-                @lx-0
-              </a>
-            </div>
           </div>
         </div>
-        
+
         <div className="mt-4 text-center text-sm text-gray-500">
-          &copy; {new Date().getFullYear()} TinyLink - An open-source URL shortener. All rights reserved.
+          &copy; {new Date().getFullYear()} TinyLink - An open-source URL
+          shortener. All rights reserved.
         </div>
       </div>
     </footer>
