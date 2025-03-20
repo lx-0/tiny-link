@@ -48,6 +48,9 @@ export default function LandingPage() {
   const [shortUrl, setShortUrl] = useState("");
   const [showResult, setShowResult] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
+  const [showQrCode, setShowQrCode] = useState(false);
+  const [shortCode, setShortCode] = useState("");
+  const [baseUrl, setBaseUrl] = useState("");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
   // Handle sign out
@@ -103,13 +106,12 @@ export default function LandingPage() {
 
   // Copy the shortened URL to clipboard
   const handleCopy = () => {
-    if (shortUrl) {
-      copy(shortUrl);
-      toast({
-        title: "Copied to clipboard",
-        description: shortUrl,
-      });
-    }
+    const fullUrl = `${baseUrl}/${shortCode}`;
+    copy(fullUrl);
+    toast({
+      title: "Copied to clipboard",
+      description: fullUrl,
+    });
   };
 
   const handleQuickCreate = async () => {
@@ -124,6 +126,7 @@ export default function LandingPage() {
 
     // Hide any previous results
     setShowResult(false);
+    setShowQrCode(false);
 
     // Basic URL validation
     let originalUrl = url;
@@ -146,23 +149,25 @@ export default function LandingPage() {
       }
 
       // Generate a random short code
-      const shortCode = nanoid(7);
+      const generatedShortCode = nanoid(7);
+      setShortCode(generatedShortCode);
 
       // Create the URL
       const response = await apiRequest("POST", "/api/urls", {
         originalUrl,
-        shortCode,
+        shortCode: generatedShortCode,
       });
 
       if (response) {
         // Create the full URL
-        const baseUrl = window.location.origin;
-        const fullUrl = `${baseUrl}/${shortCode}`;
+        const origin = window.location.origin;
+        setBaseUrl(origin);
+        const fullUrl = `${origin}/${generatedShortCode}`;
         
         // Update state with the new short URL
         setShortUrl(fullUrl);
         
-        // Generate QR code
+        // Generate QR code in background, don't show it yet
         await generateQRCode(fullUrl);
         
         // Show result view
@@ -373,19 +378,38 @@ export default function LandingPage() {
                           <ArrowRight className="w-4 h-4 mr-2" /> 
                           Your shortened URL
                         </Label>
-                        <div className="flex items-center mt-1">
-                          <Input
-                            id="shortUrl"
-                            value={shortUrl}
-                            readOnly
-                            className="text-sm font-mono bg-gray-50 border-2 py-5 focus-visible:ring-primary flex-1"
-                          />
+                        <div className="flex items-center space-x-2 mt-1">
+                          <div className="relative flex-grow">
+                            <div className="flex items-center">
+                              <span className="text-sm font-mono bg-gray-100 px-2 py-3 rounded-l-md border-y border-l">
+                                {baseUrl}/
+                              </span>
+                              <Input
+                                id="shortCode"
+                                value={shortCode}
+                                onChange={(e) => {
+                                  setShortCode(e.target.value);
+                                  // Regenerate QR code when shortcode changes
+                                  generateQRCode(`${baseUrl}/${e.target.value}`);
+                                }}
+                                className="text-sm font-mono border-2 py-2 rounded-l-none focus-visible:ring-primary"
+                              />
+                            </div>
+                          </div>
+                          <Button 
+                            variant="outline" 
+                            size="icon"
+                            onClick={handleCopy}
+                            title="Copy to clipboard"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
 
                       <div className="flex flex-col space-y-3">
-                        <div className="flex justify-center">
-                          {qrCodeDataUrl && (
+                        {showQrCode && qrCodeDataUrl && (
+                          <div className="flex justify-center">
                             <div className="bg-white p-3 rounded-md border shadow-sm">
                               <img 
                                 src={qrCodeDataUrl} 
@@ -393,27 +417,18 @@ export default function LandingPage() {
                                 className="w-32 h-32 mx-auto" 
                               />
                             </div>
-                          )}
-                        </div>
+                          </div>
+                        )}
                         
                         <div className="flex space-x-2 justify-center">
                           <Button 
                             className="flex-1" 
                             variant="outline" 
                             size="sm"
-                            onClick={handleCopy}
+                            onClick={() => setShowQrCode(!showQrCode)}
                           >
-                            <Copy className="mr-2 h-4 w-4" />
-                            Copy
-                          </Button>
-                          <Button 
-                            className="flex-1" 
-                            variant="outline"
-                            size="sm" 
-                            onClick={handleShare}
-                          >
-                            <Share2 className="mr-2 h-4 w-4" />
-                            Share
+                            <QrCode className="mr-2 h-4 w-4" />
+                            {showQrCode ? "Hide QR Code" : "Show QR Code"}
                           </Button>
                           <Button 
                             className="flex-1" 
@@ -422,7 +437,7 @@ export default function LandingPage() {
                             onClick={handleReset}
                           >
                             <RefreshCw className="mr-2 h-4 w-4" />
-                            New
+                            New URL
                           </Button>
                         </div>
                       </div>

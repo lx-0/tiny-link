@@ -17,3 +17,10 @@ services:
       - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
       - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
     command: npm start
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    name: tinylink-network
+    driver: bridge
