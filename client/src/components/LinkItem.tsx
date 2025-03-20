@@ -34,8 +34,8 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
 
   // Calculate base URL for shortening (using current domain)
   const baseUrl = window.location.origin;
-  // Use a format that works on Replit
-  const fullShortUrl = `${baseUrl}/r/${url.shortCode}`;
+  // Shortened URLs now at root level
+  const fullShortUrl = `${baseUrl}/${url.shortCode}`;
 
   // Format created date
   const formattedDate = url.createdAt

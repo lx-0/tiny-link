@@ -222,6 +222,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Error deleting URL" });
     }
   });
+  
+  // Public endpoint to get URL by short code (used for redirects)
+  app.get("/api/urls/by-code/:shortCode", async (req, res) => {
+    const { shortCode } = req.params;
+    
+    try {
+      const url = await storage.getUrlByShortCode(shortCode);
+      
+      if (!url) {
+        return res.status(404).json({ message: "URL not found" });
+      }
+      
+      if (!url.isActive) {
+        return res.status(403).json({ message: "This link has been deactivated" });
+      }
+      
+      // Increment click count asynchronously - don't wait for it to complete
+      storage.incrementUrlClicks(url.id).catch(err => {
+        console.error('Error incrementing click count:', err);
+      });
+      
+      // Return the URL data
+      res.json(url);
+    } catch (error) {
+      console.error('Error fetching URL by short code:', error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
 
   app.get("/api/stats", async (req, res) => {
     const supabaseId = req.headers["x-user-id"] as string;
@@ -284,8 +312,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         `${req.protocol}://${req.headers.host}` : 
         'http://localhost:5000';
       
-      // The short URL to encode in the QR code
-      const shortUrl = `${baseUrl}/r/${url.shortCode}`;
+      // The short URL to encode in the QR code - directly from root 
+      const shortUrl = `${baseUrl}/${url.shortCode}`;
 
       // Generate QR code based on requested format
       if (format === 'svg') {
