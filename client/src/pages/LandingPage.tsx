@@ -9,6 +9,7 @@ import { nanoid } from 'nanoid';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { FaGithub } from 'react-icons/fa';
 
 export default function LandingPage() {
   const { isAuthenticated, user } = useAuth();
@@ -95,8 +96,8 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="md:w-1/2">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">TinyLink</h1>
-              <p className="text-xl md:text-2xl mb-8">Share shorter links, track clicks, and manage your URLs with ease.</p>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">🔐 TinyLink</h1>
+              <p className="text-xl md:text-2xl mb-8">Your private, self-hosted URL shortener with full data ownership and no tracking.</p>
               
               <div className="flex gap-4">
                 <Button 
@@ -170,28 +171,57 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-3 gap-8">
             <Card>
               <CardHeader>
-                <CardTitle>Easy URL Shortening</CardTitle>
+                <CardTitle>🔒 Privacy First</CardTitle>
               </CardHeader>
               <CardContent>
-                <p>Create short, memorable links with custom slugs that are easy to share anywhere.</p>
+                <p>Self-hosted solution that gives you complete data ownership with no third-party tracking or data mining.</p>
               </CardContent>
             </Card>
             
             <Card>
               <CardHeader>
-                <CardTitle>Click Analytics</CardTitle>
+                <CardTitle>📊 Click Analytics</CardTitle>
               </CardHeader>
               <CardContent>
-                <p>Track link performance with detailed click statistics and engagement metrics.</p>
+                <p>Track link performance with detailed statistics while keeping all analytics data on your own servers.</p>
               </CardContent>
             </Card>
             
             <Card>
               <CardHeader>
-                <CardTitle>QR Code Generation</CardTitle>
+                <CardTitle>✨ Custom Branding</CardTitle>
               </CardHeader>
               <CardContent>
-                <p>Generate QR codes for your links to easily share in printed materials or displays.</p>
+                <p>Use your own domain and branding to build trust with recipients instead of generic third-party links.</p>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8 mt-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>🛡️ Enhanced Security</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>Transparent, open-source code with no hidden tracking mechanisms and full control over security settings.</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>📱 QR Code Generation</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>Generate QR codes for your links to easily share in printed materials or display on marketing materials.</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>🌐 100% Open Source</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>Fully open-source with MIT license - customize it to suit your needs with no vendor lock-in or subscriptions.</p>
               </CardContent>
             </Card>
           </div>
@@ -201,16 +231,16 @@ export default function LandingPage() {
       {/* CTA Section */}
       <div className="py-16 bg-white">
         <div className="container mx-auto px-4 max-w-6xl text-center">
-          <h2 className="text-3xl font-bold mb-4">Start shortening links today</h2>
-          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-            Create an account to access all features including link management, custom slugs, and detailed analytics.
+          <h2 className="text-3xl font-bold mb-4">Take back control of your data</h2>
+          <p className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto">
+            TinyLink is 100% open source with MIT license - self-host it on your own infrastructure to ensure complete data ownership, enhance security, and escape vendor lock-in forever.
           </p>
-          <div className="flex gap-4 justify-center">
+          <div className="flex flex-wrap gap-4 justify-center">
             <Button 
               size="lg"
               onClick={() => navigate(isAuthenticated ? '/app/dashboard' : '/app/register')}
             >
-              {isAuthenticated ? 'Go to Dashboard' : 'Sign Up - Free'}
+              {isAuthenticated ? 'Go to Dashboard' : 'Get Started - Free Forever'}
             </Button>
             {!isAuthenticated && (
               <Button 
@@ -221,6 +251,15 @@ export default function LandingPage() {
                 Log In
               </Button>
             )}
+            <Button
+              size="lg"
+              variant="outline"
+              className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+              onClick={() => window.open('https://github.com/lx-0/tinylink.git', '_blank')}
+            >
+              <FaGithub className="mr-2 h-4 w-4" />
+              View on GitHub
+            </Button>
           </div>
         </div>
       </div>
