@@ -40,12 +40,17 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
 // URL schemas
-export const insertUrlSchema = createInsertSchema(urls).pick({
-  originalUrl: true,
-  shortCode: true,
-  userId: true,
-  isActive: true,
-});
+export const insertUrlSchema = createInsertSchema(urls)
+  .pick({
+    originalUrl: true,
+    shortCode: true,
+    userId: true,
+    isActive: true,
+  })
+  .extend({
+    // Add validation for shortCode to be at least 5 characters
+    shortCode: z.string().min(5, "Shortcode must be at least 5 characters long"),
+  });
 
 export const updateUrlSchema = createInsertSchema(urls).pick({
   originalUrl: true,

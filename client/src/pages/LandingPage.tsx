@@ -138,6 +138,15 @@ export default function LandingPage() {
       });
       return;
     }
+    
+    if (shortCode.length < 5) {
+      toast({
+        title: "Shortcode too short",
+        description: "Shortcodes must be at least 5 characters long",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsUpdating(true);
 
@@ -219,24 +228,38 @@ export default function LandingPage() {
         return;
       }
 
-      // Use custom shortcode if provided, otherwise generate a random one
-      const finalShortCode = isAuthenticated && customShortCode 
-        ? customShortCode 
-        : nanoid(7);
+      // Use custom shortcode if provided and valid, otherwise generate a random one
+      let shortCodeToUse = "";
       
-      setShortCode(finalShortCode);
+      if (isAuthenticated && customShortCode) {
+        if (customShortCode.length < 5) {
+          toast({
+            title: "Shortcode too short",
+            description: "Shortcodes must be at least 5 characters long",
+            variant: "destructive",
+          });
+          setIsCreating(false);
+          return;
+        }
+        shortCodeToUse = customShortCode;
+      } else {
+        // Ensure random code is at least 5 characters
+        shortCodeToUse = nanoid(7); // Default is 7 which is > 5
+      }
+      
+      setShortCode(shortCodeToUse);
 
       // Create the URL
       const response = await apiRequest("POST", "/api/urls", {
         originalUrl,
-        shortCode: finalShortCode,
+        shortCode: shortCodeToUse,
       });
 
       if (response) {
         // Create the full URL
         const origin = window.location.origin;
         setBaseUrl(origin);
-        const fullUrl = `${origin}/${finalShortCode}`;
+        const fullUrl = `${origin}/${shortCodeToUse}`;
         
         // Update state with the new short URL
         setShortUrl(fullUrl);
