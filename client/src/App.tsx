@@ -88,13 +88,6 @@ function Router() {
         </SimpleLayout>
       </Route>
       
-      {/* Legacy path for backward compatibility */}
-      <Route path="/r/:shortCode">
-        <SimpleLayout>
-          <RedirectPage />
-        </SimpleLayout>
-      </Route>
-      
       {/* 404 page for any other routes */}
       <Route>
         <SimpleLayout>

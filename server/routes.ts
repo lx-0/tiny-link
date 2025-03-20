@@ -365,24 +365,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // This middleware will handle root-level shortcode URLs
-  app.use('/:shortCode', async (req, res, next) => {
+  // This shortcode handler should be the LAST route registered before giving control to Vite
+  // It will handle root-level shortcode URLs but allow all API and asset routes to work
+  app.get('/:shortCode', async (req, res, next) => {
     const { shortCode } = req.params;
     
-    // Skip specific paths that should be handled by other routes
-    // This is crucial to prevent the shortcode handler from catching app routes
+    // Skip specific paths that should be handled by other routes or Vite
     if (shortCode === 'app' || 
         shortCode === 'api' || 
         shortCode === 'assets' ||
         shortCode === 'not-found' ||
+        shortCode === 'src' ||
+        shortCode === 'node_modules' ||
         shortCode.includes('.')) {
       return next();
     }
 
-    // Only process GET requests for the shortcode
-    if (req.method !== 'GET') {
-      return next();
-    }
+    console.log(`Handling shortcode redirect for: ${shortCode}`);
     
     try {
       const url = await storage.getUrlByShortCode(shortCode);
@@ -399,27 +398,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error processing shortcode redirect:', error);
       return next(); // Let other handlers deal with this path
-    }
-  });
-  
-  // Keep legacy /r/ path for backward compatibility
-  app.get("/r/:shortCode", async (req, res) => {
-    const { shortCode } = req.params;
-    
-    try {
-      const url = await storage.getUrlByShortCode(shortCode);
-      
-      if (!url || !url.isActive) {
-        return res.redirect(`/not-found?code=${shortCode}`);
-      }
-      
-      // Increment click count
-      await storage.incrementUrlClicks(url.id);
-      
-      // Redirect to the original URL
-      res.redirect(url.originalUrl);
-    } catch (error) {
-      res.status(500).json({ message: "Error processing redirect" });
     }
   });
 
