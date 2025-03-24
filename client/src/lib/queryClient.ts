@@ -1,6 +1,14 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 import { supabase } from "./supabase";
 
+// Custom error for short code duplication
+export class ShortCodeError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ShortCodeError';
+  }
+}
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     try {
@@ -8,13 +16,24 @@ async function throwIfResNotOk(res: Response) {
       const contentType = res.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
         const errorData = await res.json();
+        
+        // Special handling for shortcode error
+        if (res.status === 400 && errorData.message === "Short code already in use") {
+          throw new ShortCodeError("This custom path is already taken. Please choose another one.");
+        }
+        
         throw new Error(errorData.message || `${res.status}: ${res.statusText}`);
       } else {
         // Fallback to text
         const text = (await res.text()) || res.statusText;
         throw new Error(`${res.status}: ${text}`);
       }
-    } catch (parseError) {
+    } catch (error) {
+      // If it's already our custom error, rethrow it
+      if (error instanceof ShortCodeError) {
+        throw error;
+      }
+      
       // If parsing fails, use status text
       throw new Error(`${res.status}: ${res.statusText || 'Unknown error'}`);
     }

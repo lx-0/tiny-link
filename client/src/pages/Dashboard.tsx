@@ -8,7 +8,7 @@ import {
   Timer,
 } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, ShortCodeError } from "@/lib/queryClient";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
@@ -121,7 +121,7 @@ export default function Dashboard() {
     },
     onError: (error: any) => {
       // Only show toast for errors that aren't our custom short code error
-      if (!error.isShortCodeError) {
+      if (!(error instanceof ShortCodeError)) {
         toast({
           title: "Failed to create short URL",
           description: error.message || "Please try again later.",
