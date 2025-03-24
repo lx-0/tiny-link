@@ -277,12 +277,13 @@ export default function Dashboard() {
         setShowEditModal(true);
         
         // Set user-friendly error messages
-        if (error instanceof Error) {
+        if (error instanceof ShortCodeError) {
+          // This is our custom error for duplicate short codes
+          setFormError(`This custom path is already taken. Please choose another one.`);
+        } else if (error instanceof Error) {
           const errorMessage = error.message;
           
-          // Check for shortcode errors using both the custom property and message content
-          if (error.isShortCodeError || 
-              errorMessage.includes("Short code already in use") ||
+          if (errorMessage.includes("Short code already in use") ||
               errorMessage.includes("custom path") ||
               errorMessage.includes("already taken")) {
             setFormError(`This custom path is already taken. Please choose another one.`);
