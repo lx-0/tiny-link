@@ -173,11 +173,11 @@ export default function LandingPage() {
       
       // Check for specific shortcode errors
       if (error instanceof ShortCodeError) {
-        setShortCodeError("This custom path is already taken. Please choose another one.");
+        setCustomShortCodeError("This custom path is already taken. Please choose another one.");
       } else if (error.message?.includes("Short code already in use") || 
           error.message?.includes("already taken") || 
           error.message?.includes("custom path")) {
-        setShortCodeError("This custom path is already taken. Please choose another one.");
+        setCustomShortCodeError("This custom path is already taken. Please choose another one.");
       } else {
         // For other errors, show toast
         toast({
@@ -554,6 +554,12 @@ export default function LandingPage() {
                           setUrl(e.target.value);
                           setUrlError("");
                         }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && url) {
+                            e.preventDefault();
+                            handleQuickCreate();
+                          }
+                        }}
                         readOnly={showResult}
                       />
                       {urlError && (
@@ -735,6 +741,12 @@ export default function LandingPage() {
                                   onChange={(e) => {
                                     setCustomShortCode(e.target.value);
                                     setCustomShortCodeError("");
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && url) {
+                                      e.preventDefault();
+                                      handleQuickCreate();
+                                    }
                                   }}
                                   placeholder="custom-code (optional)"
                                   className={`text-sm font-mono border-2 h-10 rounded-l-none focus-visible:ring-primary w-full ${customShortCodeError ? "border-red-500" : ""}`}
