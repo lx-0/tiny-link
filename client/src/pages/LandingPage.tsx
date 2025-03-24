@@ -168,13 +168,22 @@ export default function LandingPage() {
           description: "Your custom shortcode has been updated successfully.",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast({
-        title: "Error",
-        description: "Failed to update shortcode. This shortcode may already be in use.",
-        variant: "destructive",
-      });
+      
+      // Check for specific shortcode errors
+      if (error.message?.includes("Short code already in use") || 
+          error.message?.includes("already taken") || 
+          error.message?.includes("custom path")) {
+        setShortCodeError("This custom path is already taken. Please choose another one.");
+      } else {
+        // For other errors, show toast
+        toast({
+          title: "Error",
+          description: error.message || "Failed to update shortcode. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsUpdating(false);
     }
@@ -310,8 +319,13 @@ export default function LandingPage() {
     } catch (error: any) {
       console.error(error);
       
-      // Only show toast for errors that aren't our custom short code error
-      if (!error.message?.includes("custom path is already taken")) {
+      // Never show toast for shortcode errors - only display in form field
+      if (error.message?.includes("short code already") || 
+          error.message?.includes("already taken") || 
+          error.message?.includes("custom path")) {
+        // Error is already handled by setting customShortCodeError
+      } else {
+        // For other errors, show toast
         toast({
           title: "Error",
           description: error.message || "Failed to shorten URL. Please try again.",
