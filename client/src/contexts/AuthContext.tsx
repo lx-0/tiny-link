@@ -36,6 +36,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   // Simple helper to navigate using wouter
   const navigate = (path: string, options = {}) => {
+    // Ensure paths are properly prefixed with /app/
+    if (path === '/login' || path === '/dashboard' || path === '/register') {
+      path = `/app${path}`;
+    }
     import('@/lib/utils').then(({ safeNavigate }) => {
       safeNavigate(path, options);
     });
@@ -213,7 +217,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       
       // Direct navigation to login page
-      navigate('/login');
+      navigate('/app/login');
     } catch (error) {
       toast({
         title: 'Error signing out',
