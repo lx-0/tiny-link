@@ -267,17 +267,10 @@ export default function LandingPage() {
       
       setShortCode(shortCodeToUse);
 
-      // Create the URL - using fetch directly to better handle specific errors
-      const response = await fetch("/api/urls", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          originalUrl,
-          shortCode: shortCodeToUse,
-        }),
-        credentials: "include"
+      // Use apiRequest which automatically handles auth headers
+      const response = await apiRequest("POST", "/api/urls", {
+        originalUrl,
+        shortCode: shortCodeToUse,
       });
       
       // Parse the response

@@ -75,38 +75,29 @@ export default function Dashboard() {
   const createUrlMutation = useMutation({
     mutationFn: async (data: any) => {
       try {
-        // Make the request
-        const response = await fetch("/api/urls", {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            // Add the user ID from Supabase
-            "x-user-id": (await supabase.auth.getSession()).data?.session?.user?.id || ""
-          },
-          body: JSON.stringify(data),
-          credentials: "include"
-        });
+        // Use apiRequest which automatically handles auth headers
+        const response = await apiRequest("POST", "/api/urls", data);
         
         // Parse the response
         const responseData = await response.json();
         
-        // Handle non-OK responses
-        if (!response.ok) {
-          // For the specific case of short code already in use, throw a custom error
-          if (responseData.message === "Short code already in use") {
-            const error = new Error("This custom path is already taken. Please choose another one.");
-            // Add a custom property to identify this specific error
-            Object.defineProperty(error, 'isShortCodeError', { value: true });
-            throw error;
-          }
-          
-          // For other errors, throw with the response message
-          throw new Error(responseData.message || `Error: ${response.status}`);
+        // For the specific case of short code already in use, throw a custom error
+        if (response.status === 400 && responseData.message === "Short code already in use") {
+          const error = new Error("This custom path is already taken. Please choose another one.");
+          // Add a custom property to identify this specific error
+          Object.defineProperty(error, 'isShortCodeError', { value: true });
+          throw error;
         }
         
         return responseData;
       } catch (error) {
-        throw error; // Re-throw to be handled by onError
+        // If it's our custom error, re-throw it
+        if (error instanceof Error && 'isShortCodeError' in error) {
+          throw error;
+        }
+        
+        // For other errors from apiRequest, they'll be thrown automatically
+        throw error;
       }
     },
     onSuccess: () => {
@@ -134,38 +125,29 @@ export default function Dashboard() {
   const updateUrlMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: any }) => {
       try {
-        // Make the request
-        const response = await fetch(`/api/urls/${id}`, {
-          method: "PUT",
-          headers: { 
-            "Content-Type": "application/json",
-            // Add the user ID from Supabase
-            "x-user-id": (await supabase.auth.getSession()).data?.session?.user?.id || ""
-          },
-          body: JSON.stringify(data),
-          credentials: "include"
-        });
+        // Use apiRequest which automatically handles auth headers
+        const response = await apiRequest("PUT", `/api/urls/${id}`, data);
         
         // Parse the response
         const responseData = await response.json();
         
-        // Handle non-OK responses
-        if (!response.ok) {
-          // For the specific case of short code already in use, throw a custom error
-          if (responseData.message === "Short code already in use") {
-            const error = new Error("This custom path is already taken. Please choose another one.");
-            // Add a custom property to identify this specific error
-            Object.defineProperty(error, 'isShortCodeError', { value: true });
-            throw error;
-          }
-          
-          // For other errors, throw with the response message
-          throw new Error(responseData.message || `Error: ${response.status}`);
+        // For the specific case of short code already in use, throw a custom error
+        if (response.status === 400 && responseData.message === "Short code already in use") {
+          const error = new Error("This custom path is already taken. Please choose another one.");
+          // Add a custom property to identify this specific error
+          Object.defineProperty(error, 'isShortCodeError', { value: true });
+          throw error;
         }
         
         return responseData;
       } catch (error) {
-        throw error; // Re-throw to be handled by onError
+        // If it's our custom error, re-throw it
+        if (error instanceof Error && 'isShortCodeError' in error) {
+          throw error;
+        }
+        
+        // For other errors from apiRequest, they'll be thrown automatically
+        throw error;
       }
     },
     onSuccess: () => {
