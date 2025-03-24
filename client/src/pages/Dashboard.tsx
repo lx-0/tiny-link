@@ -74,41 +74,45 @@ export default function Dashboard() {
   // Create URL mutation with custom error handling
   const createUrlMutation = useMutation({
     mutationFn: async (data: any) => {
+      // Use fetch directly with manual handling to avoid automatic error throwing
+      // We want to check for specific error conditions
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      
       try {
-        // Use apiRequest which automatically handles auth headers
-        const response = await apiRequest("POST", "/api/urls", data);
-        
-        // For JSON responses, we need to parse and check for specific errors
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          const responseData = await response.json();
-          
-          // For the specific case of short code already in use, throw a custom error
-          if (response.status === 400 && responseData.message === "Short code already in use") {
-            const error = new Error("This custom path is already taken. Please choose another one.");
-            // Add a custom property to identify this specific error
-            Object.defineProperty(error, 'isShortCodeError', { value: true });
-            throw error;
-          }
-          
-          // If response is not OK but we have a message
-          if (!response.ok && responseData.message) {
-            throw new Error(responseData.message);
-          }
-          
-          return responseData;
+        // Get user ID from Supabase if possible
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (sessionData?.session?.user?.id) {
+          headers['x-user-id'] = sessionData.session.user.id;
         }
-        
-        // For non-JSON responses, just check if OK
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status} ${response.statusText}`);
-        }
-        
-        return response;
       } catch (error) {
-        // For our custom errors or regular errors, just re-throw
-        throw error;
+        console.error('Failed to get auth header:', error);
       }
+      
+      const response = await fetch('/api/urls', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(data),
+        credentials: 'include'
+      });
+      
+      // Check for a specific response
+      if (response.status === 400) {
+        const errorData = await response.json();
+        if (errorData.message === "Short code already in use") {
+          // Use our custom error type
+          throw new ShortCodeError("This custom path is already taken. Please choose another one.");
+        }
+        // For other bad request errors
+        throw new Error(errorData.message || "Bad request");
+      }
+      
+      // For non-200 responses
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `Error ${response.status}: ${response.statusText}`);
+      }
+      
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/urls"] });
@@ -134,41 +138,45 @@ export default function Dashboard() {
   // Update URL mutation with custom error handling
   const updateUrlMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: any }) => {
+      // Use fetch directly with manual handling to avoid automatic error throwing
+      // We want to check for specific error conditions
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      
       try {
-        // Use apiRequest which automatically handles auth headers
-        const response = await apiRequest("PUT", `/api/urls/${id}`, data);
-        
-        // For JSON responses, we need to parse and check for specific errors
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          const responseData = await response.json();
-          
-          // For the specific case of short code already in use, throw a custom error
-          if (response.status === 400 && responseData.message === "Short code already in use") {
-            const error = new Error("This custom path is already taken. Please choose another one.");
-            // Add a custom property to identify this specific error
-            Object.defineProperty(error, 'isShortCodeError', { value: true });
-            throw error;
-          }
-          
-          // If response is not OK but we have a message
-          if (!response.ok && responseData.message) {
-            throw new Error(responseData.message);
-          }
-          
-          return responseData;
+        // Get user ID from Supabase if possible
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (sessionData?.session?.user?.id) {
+          headers['x-user-id'] = sessionData.session.user.id;
         }
-        
-        // For non-JSON responses, just check if OK
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status} ${response.statusText}`);
-        }
-        
-        return response;
       } catch (error) {
-        // For our custom errors or regular errors, just re-throw
-        throw error;
+        console.error('Failed to get auth header:', error);
       }
+      
+      const response = await fetch(`/api/urls/${id}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify(data),
+        credentials: 'include'
+      });
+      
+      // Check for a specific response
+      if (response.status === 400) {
+        const errorData = await response.json();
+        if (errorData.message === "Short code already in use") {
+          // Use our custom error type
+          throw new ShortCodeError("This custom path is already taken. Please choose another one.");
+        }
+        // For other bad request errors
+        throw new Error(errorData.message || "Bad request");
+      }
+      
+      // For non-200 responses
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `Error ${response.status}: ${response.statusText}`);
+      }
+      
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/urls"] });
@@ -181,7 +189,7 @@ export default function Dashboard() {
     },
     onError: (error: any) => {
       // Only show toast for errors that aren't our custom short code error
-      if (!error.isShortCodeError) {
+      if (!(error instanceof ShortCodeError)) {
         toast({
           title: "Failed to update URL",
           description: error.message || "Please try again later.",
@@ -230,12 +238,13 @@ export default function Dashboard() {
         setShowAddModal(true);
         
         // Set user-friendly error messages
-        if (error instanceof Error) {
+        if (error instanceof ShortCodeError) {
+          // This is our custom error for duplicate short codes
+          setFormError(`This custom path is already taken. Please choose another one.`);
+        } else if (error instanceof Error) {
           const errorMessage = error.message;
           
-          // Check for shortcode errors using both the custom property and message content
-          if (error.isShortCodeError || 
-              errorMessage.includes("Short code already in use") ||
+          if (errorMessage.includes("Short code already in use") ||
               errorMessage.includes("custom path") ||
               errorMessage.includes("already taken")) {
             setFormError(`This custom path is already taken. Please choose another one.`);
