@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
@@ -70,9 +71,44 @@ export default function Dashboard() {
     staleTime: 30000,
   });
 
-  // Create URL mutation
+  // Create URL mutation with custom error handling
   const createUrlMutation = useMutation({
-    mutationFn: (data: any) => apiRequest("POST", "/api/urls", data),
+    mutationFn: async (data: any) => {
+      try {
+        // Make the request
+        const response = await fetch("/api/urls", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            // Add the user ID from Supabase
+            "x-user-id": (await supabase.auth.getSession()).data?.session?.user?.id || ""
+          },
+          body: JSON.stringify(data),
+          credentials: "include"
+        });
+        
+        // Parse the response
+        const responseData = await response.json();
+        
+        // Handle non-OK responses
+        if (!response.ok) {
+          // For the specific case of short code already in use, throw a custom error
+          if (responseData.message === "Short code already in use") {
+            const error = new Error("This custom path is already taken. Please choose another one.");
+            // Add a custom property to identify this specific error
+            Object.defineProperty(error, 'isShortCodeError', { value: true });
+            throw error;
+          }
+          
+          // For other errors, throw with the response message
+          throw new Error(responseData.message || `Error: ${response.status}`);
+        }
+        
+        return responseData;
+      } catch (error) {
+        throw error; // Re-throw to be handled by onError
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/urls"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
@@ -82,19 +118,56 @@ export default function Dashboard() {
       });
       setShowAddModal(false);
     },
-    onError: (error) => {
-      toast({
-        title: "Failed to create short URL",
-        description: error.message || "Please try again later.",
-        variant: "destructive",
-      });
+    onError: (error: any) => {
+      // Only show toast for errors that aren't our custom short code error
+      if (!error.isShortCodeError) {
+        toast({
+          title: "Failed to create short URL",
+          description: error.message || "Please try again later.",
+          variant: "destructive",
+        });
+      }
     },
   });
 
-  // Update URL mutation
+  // Update URL mutation with custom error handling
   const updateUrlMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: any }) =>
-      apiRequest("PUT", `/api/urls/${id}`, data),
+    mutationFn: async ({ id, data }: { id: number; data: any }) => {
+      try {
+        // Make the request
+        const response = await fetch(`/api/urls/${id}`, {
+          method: "PUT",
+          headers: { 
+            "Content-Type": "application/json",
+            // Add the user ID from Supabase
+            "x-user-id": (await supabase.auth.getSession()).data?.session?.user?.id || ""
+          },
+          body: JSON.stringify(data),
+          credentials: "include"
+        });
+        
+        // Parse the response
+        const responseData = await response.json();
+        
+        // Handle non-OK responses
+        if (!response.ok) {
+          // For the specific case of short code already in use, throw a custom error
+          if (responseData.message === "Short code already in use") {
+            const error = new Error("This custom path is already taken. Please choose another one.");
+            // Add a custom property to identify this specific error
+            Object.defineProperty(error, 'isShortCodeError', { value: true });
+            throw error;
+          }
+          
+          // For other errors, throw with the response message
+          throw new Error(responseData.message || `Error: ${response.status}`);
+        }
+        
+        return responseData;
+      } catch (error) {
+        throw error; // Re-throw to be handled by onError
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/urls"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
@@ -104,12 +177,15 @@ export default function Dashboard() {
       });
       setShowEditModal(false);
     },
-    onError: (error) => {
-      toast({
-        title: "Failed to update URL",
-        description: error.message || "Please try again later.",
-        variant: "destructive",
-      });
+    onError: (error: any) => {
+      // Only show toast for errors that aren't our custom short code error
+      if (!error.isShortCodeError) {
+        toast({
+          title: "Failed to update URL",
+          description: error.message || "Please try again later.",
+          variant: "destructive",
+        });
+      }
     },
   });
 
