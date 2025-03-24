@@ -1,9 +1,27 @@
 import { createClient } from '@supabase/supabase-js';
 import { apiRequest } from './queryClient';
 
-// Initialize Supabase client
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-supabase-url.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-supabase-anon-key';
+// Initialize Supabase client with runtime configuration
+// Check for global runtime config first (for Docker environments)
+declare global {
+  interface Window {
+    __RUNTIME_CONFIG__?: {
+      VITE_SUPABASE_URL: string;
+      VITE_SUPABASE_ANON_KEY: string;
+    };
+  }
+}
+
+// First try to get configs from runtime, then fall back to environment variables
+const supabaseUrl = 
+  (typeof window !== 'undefined' && window.__RUNTIME_CONFIG__?.VITE_SUPABASE_URL) || 
+  import.meta.env.VITE_SUPABASE_URL || 
+  'https://your-supabase-url.supabase.co';
+
+const supabaseAnonKey = 
+  (typeof window !== 'undefined' && window.__RUNTIME_CONFIG__?.VITE_SUPABASE_ANON_KEY) || 
+  import.meta.env.VITE_SUPABASE_ANON_KEY || 
+  'your-supabase-anon-key';
 
 // Get current app URL for redirects
 const appUrl = typeof window !== 'undefined' ? window.location.origin : '';
