@@ -225,15 +225,19 @@ export default function Dashboard() {
         setShowAddModal(false);
         setFormError(null);
       },
-      onError: (error) => {
-        // Keep the modal open and set the error message
+      onError: (error: any) => {
+        // Keep the modal open
         setShowAddModal(true);
         
         // Set user-friendly error messages
         if (error instanceof Error) {
           const errorMessage = error.message;
           
-          if (errorMessage.includes("Short code already in use")) {
+          // Check for shortcode errors using both the custom property and message content
+          if (error.isShortCodeError || 
+              errorMessage.includes("Short code already in use") ||
+              errorMessage.includes("custom path") ||
+              errorMessage.includes("already taken")) {
             setFormError(`This custom path is already taken. Please choose another one.`);
           } else if (errorMessage.includes("Bad Request")) {
             setFormError(`There was a problem with your request. Please check your inputs and try again.`);
@@ -259,15 +263,19 @@ export default function Dashboard() {
         setShowEditModal(false);
         setFormError(null);
       },
-      onError: (error) => {
-        // Keep the modal open and set the error message
+      onError: (error: any) => {
+        // Keep the modal open
         setShowEditModal(true);
         
         // Set user-friendly error messages
         if (error instanceof Error) {
           const errorMessage = error.message;
           
-          if (errorMessage.includes("Short code already in use")) {
+          // Check for shortcode errors using both the custom property and message content
+          if (error.isShortCodeError || 
+              errorMessage.includes("Short code already in use") ||
+              errorMessage.includes("custom path") ||
+              errorMessage.includes("already taken")) {
             setFormError(`This custom path is already taken. Please choose another one.`);
           } else if (errorMessage.includes("Bad Request")) {
             setFormError(`There was a problem with your request. Please check your inputs and try again.`);
