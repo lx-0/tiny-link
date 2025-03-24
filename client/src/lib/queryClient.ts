@@ -18,7 +18,10 @@ async function throwIfResNotOk(res: Response) {
         const errorData = await res.json();
         
         // Special handling for shortcode error
-        if (res.status === 400 && errorData.message === "Short code already in use") {
+        if (res.status === 400 && 
+           (errorData.message === "Short code already in use" || 
+            errorData.message?.includes("already taken") || 
+            errorData.message?.includes("custom path"))) {
           throw new ShortCodeError("This custom path is already taken. Please choose another one.");
         }
         

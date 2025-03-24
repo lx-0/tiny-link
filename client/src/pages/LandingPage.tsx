@@ -278,25 +278,48 @@ export default function LandingPage() {
       
       setShortCode(shortCodeToUse);
 
-      // Use apiRequest which automatically handles auth headers
-      const response = await apiRequest("POST", "/api/urls", {
-        originalUrl,
-        shortCode: shortCodeToUse,
-      });
-      
-      // Parse the response and handle errors
-      const responseData = await response.json();
-      
-      // Handle non-OK responses
-      if (!response.ok) {
-        // For the specific case of short code already in use
-        if (responseData.message === "Short code already in use") {
-          setCustomShortCodeError("This custom path is already taken. Please choose another one.");
-          throw new ShortCodeError("This custom path is already taken. Please choose another one.");
+      try {
+        // Use apiRequest which automatically handles auth headers
+        await apiRequest("POST", "/api/urls", {
+          originalUrl,
+          shortCode: shortCodeToUse,
+        });
+      } catch (error: any) {
+        console.error("Error creating short URL:", error);
+        
+        // Handle errors from apiRequest
+        if (error instanceof ShortCodeError || 
+            error.message?.includes("Short code already in use") || 
+            error.message?.includes("already taken") || 
+            error.message?.includes("custom path")) {
+          // Update the correct error state based on whether we're using a custom shortcode
+          if (customShortCode) {
+            setCustomShortCodeError("This custom path is already taken. Please choose another one.");
+          } else {
+            // If using a generated shortcode, just generate a new one and retry
+            const newCode = nanoid(7);
+            setShortCode(newCode);
+            try {
+              await apiRequest("POST", "/api/urls", {
+                originalUrl,
+                shortCode: newCode,
+              });
+              // If successful, continue with the flow
+              return; // Skip the throw
+            } catch (retryError) {
+              // If retry fails, show generic error
+              toast({
+                title: "Error",
+                description: "Failed to create a unique shortcode. Please try again.",
+                variant: "destructive",
+              });
+            }
+          }
+          throw error; // Re-throw to be caught by the outer try/catch
         }
         
         // For other errors
-        throw new Error(responseData.message || `Error: ${response.status}`);
+        throw error;
       }
       
       // Create the full URL
