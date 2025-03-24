@@ -134,16 +134,27 @@ export default function Dashboard() {
     },
   });
 
+  // State to hold form submission errors
+  const [formError, setFormError] = useState<string | null>(null);
+  
   // Handle form submissions
   const handleAddUrl = (data: any) => {
-    // Set the loading state of the form
-    setShowAddModal(true);
+    // Clear previous errors
+    setFormError(null);
     
     createUrlMutation.mutate(data, {
+      onSuccess: () => {
+        setShowAddModal(false);
+        setFormError(null);
+      },
       onError: (error) => {
-        // Keep the modal open on error
+        // Keep the modal open and set the error message
         setShowAddModal(true);
-        // Error will be handled by the modal itself
+        if (error instanceof Error) {
+          setFormError(error.message);
+        } else {
+          setFormError('Failed to create short URL');
+        }
       }
     });
   };
@@ -151,11 +162,22 @@ export default function Dashboard() {
   const handleEditUrl = (data: any) => {
     if (!currentUrl) return;
     
+    // Clear previous errors
+    setFormError(null);
+    
     updateUrlMutation.mutate({ id: currentUrl.id, data }, {
+      onSuccess: () => {
+        setShowEditModal(false);
+        setFormError(null);
+      },
       onError: (error) => {
-        // Keep the modal open on error
+        // Keep the modal open and set the error message
         setShowEditModal(true);
-        // Error will be handled by the modal itself
+        if (error instanceof Error) {
+          setFormError(error.message);
+        } else {
+          setFormError('Failed to update URL');
+        }
       }
     });
   };
@@ -385,17 +407,25 @@ export default function Dashboard() {
       {/* Modals */}
       <LinkFormModal
         open={showAddModal}
-        onClose={() => setShowAddModal(false)}
+        onClose={() => {
+          setShowAddModal(false);
+          setFormError(null);
+        }}
         onSubmit={handleAddUrl}
         isEditing={false}
+        serverError={formError}
       />
 
       <LinkFormModal
         open={showEditModal}
-        onClose={() => setShowEditModal(false)}
+        onClose={() => {
+          setShowEditModal(false);
+          setFormError(null);
+        }}
         onSubmit={handleEditUrl}
         initialData={currentUrl}
         isEditing={true}
+        serverError={formError}
       />
 
       <DeleteConfirmModal

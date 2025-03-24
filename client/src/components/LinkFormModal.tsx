@@ -50,6 +50,7 @@ interface LinkFormModalProps {
   onSubmit: (data: FormValues) => void;
   initialData?: Url | null;
   isEditing: boolean;
+  serverError?: string | null;
 }
 
 export default function LinkFormModal({ 
@@ -57,10 +58,13 @@ export default function LinkFormModal({
   onClose, 
   onSubmit, 
   initialData = null,
-  isEditing = false
+  isEditing = false,
+  serverError: propServerError = null
 }: LinkFormModalProps) {
-  const baseUrl = window.location.origin;
-  const [serverError, setServerError] = useState<string | null>(null);
+  const [localServerError, setLocalServerError] = useState<string | null>(null);
+  
+  // Combine prop error with local error
+  const serverError = propServerError || localServerError;
 
   // Set up form with validation
   const form = useForm<FormValues>({
@@ -75,7 +79,7 @@ export default function LinkFormModal({
   // Reset form when initialData changes
   useEffect(() => {
     if (open) {
-      setServerError(null);
+      setLocalServerError(null);
       form.reset({
         originalUrl: initialData?.originalUrl || '',
         shortCode: initialData?.shortCode || '',
@@ -86,7 +90,7 @@ export default function LinkFormModal({
 
   const handleSubmit = (data: FormValues) => {
     // Clear any previous errors
-    setServerError(null);
+    setLocalServerError(null);
     
     // If URL doesn't have a protocol, add https://
     let finalData = { ...data };
@@ -98,9 +102,9 @@ export default function LinkFormModal({
       onSubmit(finalData);
     } catch (error) {
       if (error instanceof Error) {
-        setServerError(error.message);
+        setLocalServerError(error.message);
       } else {
-        setServerError('An unexpected error occurred');
+        setLocalServerError('An unexpected error occurred');
       }
     }
   };
@@ -147,7 +151,7 @@ export default function LinkFormModal({
                   <FormControl>
                     <div className="flex rounded-md shadow-sm">
                       <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
-                        {baseUrl}/
+                        {window.location.host}/
                       </span>
                       <Input 
                         className="rounded-l-none"
