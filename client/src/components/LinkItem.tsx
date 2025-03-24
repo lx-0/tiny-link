@@ -36,6 +36,9 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
   const baseUrl = window.location.origin;
   // Use root path for short URLs
   const fullShortUrl = `${baseUrl}/${url.shortCode}`;
+  
+  // Create a display version without the https:// prefix
+  const displayShortUrl = `${window.location.host}/${url.shortCode}`;
 
   // Format created date
   const formattedDate = url.createdAt
@@ -197,7 +200,7 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
                     window.open(fullShortUrl, "_blank");
                   }}
                 >
-                  {fullShortUrl}
+                  {displayShortUrl}
                 </a>
               </div>
               <button
@@ -262,7 +265,7 @@ export default function LinkItem({ url, onEdit, onDelete }: LinkItemProps) {
                     This QR code links to:
                   </p>
                   <p className="text-sm font-medium text-primary">
-                    {fullShortUrl}
+                    {displayShortUrl}
                   </p>
                 </div>
               </div>

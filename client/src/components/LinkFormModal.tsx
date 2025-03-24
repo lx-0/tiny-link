@@ -185,6 +185,24 @@ export default function LinkFormModal({
               )}
             />
             
+            {serverError && (
+              <div className="bg-red-50 p-4 rounded-md">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <AlertCircle className="h-5 w-5 text-red-400" />
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-red-800">
+                      Error creating link
+                    </h3>
+                    <div className="mt-2 text-sm text-red-700">
+                      <p>{serverError}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
             {isEditing && initialData && (
               <div className="bg-gray-50 p-4 rounded-md">
                 <div className="flex items-center">

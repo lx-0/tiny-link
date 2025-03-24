@@ -136,12 +136,28 @@ export default function Dashboard() {
 
   // Handle form submissions
   const handleAddUrl = (data: any) => {
-    createUrlMutation.mutate(data);
+    // Set the loading state of the form
+    setShowAddModal(true);
+    
+    createUrlMutation.mutate(data, {
+      onError: (error) => {
+        // Keep the modal open on error
+        setShowAddModal(true);
+        // Error will be handled by the modal itself
+      }
+    });
   };
 
   const handleEditUrl = (data: any) => {
     if (!currentUrl) return;
-    updateUrlMutation.mutate({ id: currentUrl.id, data });
+    
+    updateUrlMutation.mutate({ id: currentUrl.id, data }, {
+      onError: (error) => {
+        // Keep the modal open on error
+        setShowEditModal(true);
+        // Error will be handled by the modal itself
+      }
+    });
   };
 
   const handleDeleteUrl = () => {
