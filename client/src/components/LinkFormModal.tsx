@@ -9,10 +9,35 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { AlertCircle } from 'lucide-react';
+
+// Custom URL validator that accepts formats like "google.de"
+const urlSchema = z.string().min(1, 'URL is required').refine(
+  (value) => {
+    // If URL already has a protocol, use standard URL validation
+    if (value.startsWith('http://') || value.startsWith('https://')) {
+      try {
+        new URL(value);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+    
+    // For URLs without protocol, add https:// and validate
+    try {
+      new URL(`https://${value}`);
+      return true;
+    } catch {
+      return false;
+    }
+  },
+  { message: 'Please enter a valid URL' }
+);
 
 // Schema for the form with validation
 const formSchema = z.object({
-  originalUrl: z.string().url('Please enter a valid URL').min(1, 'URL is required'),
+  originalUrl: urlSchema,
   shortCode: z.string().min(5, 'Short code must be at least 5 characters').optional(),
   isActive: z.boolean().default(true),
 });
@@ -35,6 +60,7 @@ export default function LinkFormModal({
   isEditing = false
 }: LinkFormModalProps) {
   const baseUrl = window.location.origin;
+  const [serverError, setServerError] = useState<string | null>(null);
 
   // Set up form with validation
   const form = useForm<FormValues>({
@@ -49,6 +75,7 @@ export default function LinkFormModal({
   // Reset form when initialData changes
   useEffect(() => {
     if (open) {
+      setServerError(null);
       form.reset({
         originalUrl: initialData?.originalUrl || '',
         shortCode: initialData?.shortCode || '',
@@ -58,8 +85,24 @@ export default function LinkFormModal({
   }, [open, initialData, form]);
 
   const handleSubmit = (data: FormValues) => {
-    onSubmit(data);
-    form.reset();
+    // Clear any previous errors
+    setServerError(null);
+    
+    // If URL doesn't have a protocol, add https://
+    let finalData = { ...data };
+    if (finalData.originalUrl && !finalData.originalUrl.startsWith('http://') && !finalData.originalUrl.startsWith('https://')) {
+      finalData.originalUrl = `https://${finalData.originalUrl}`;
+    }
+    
+    try {
+      onSubmit(finalData);
+    } catch (error) {
+      if (error instanceof Error) {
+        setServerError(error.message);
+      } else {
+        setServerError('An unexpected error occurred');
+      }
+    }
   };
 
   return (
