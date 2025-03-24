@@ -150,10 +150,21 @@ export default function Dashboard() {
       onError: (error) => {
         // Keep the modal open and set the error message
         setShowAddModal(true);
+        
+        // Set user-friendly error messages
         if (error instanceof Error) {
-          setFormError(error.message);
+          const errorMessage = error.message;
+          
+          if (errorMessage.includes("Short code already in use")) {
+            setFormError(`This custom path is already taken. Please choose another one.`);
+          } else if (errorMessage.includes("Bad Request")) {
+            setFormError(`There was a problem with your request. Please check your inputs and try again.`);
+          } else {
+            // Keep original error if we don't have a specific friendly message
+            setFormError(errorMessage);
+          }
         } else {
-          setFormError('Failed to create short URL');
+          setFormError('Failed to create short URL. Please try again.');
         }
       }
     });
@@ -173,10 +184,21 @@ export default function Dashboard() {
       onError: (error) => {
         // Keep the modal open and set the error message
         setShowEditModal(true);
+        
+        // Set user-friendly error messages
         if (error instanceof Error) {
-          setFormError(error.message);
+          const errorMessage = error.message;
+          
+          if (errorMessage.includes("Short code already in use")) {
+            setFormError(`This custom path is already taken. Please choose another one.`);
+          } else if (errorMessage.includes("Bad Request")) {
+            setFormError(`There was a problem with your request. Please check your inputs and try again.`);
+          } else {
+            // Keep original error if we don't have a specific friendly message
+            setFormError(errorMessage);
+          }
         } else {
-          setFormError('Failed to update URL');
+          setFormError('Failed to update URL. Please try again.');
         }
       }
     });

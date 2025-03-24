@@ -76,10 +76,13 @@ export default function LinkFormModal({
     },
   });
 
-  // Reset form when initialData changes
+  // Reset form when open state or initialData changes
   useEffect(() => {
     if (open) {
+      // Reset local error message
       setLocalServerError(null);
+      
+      // Reset form with initial data or defaults
       form.reset({
         originalUrl: initialData?.originalUrl || '',
         shortCode: initialData?.shortCode || '',
@@ -197,7 +200,7 @@ export default function LinkFormModal({
                   </div>
                   <div className="ml-3">
                     <h3 className="text-sm font-medium text-red-800">
-                      Error creating link
+                      {isEditing ? "Error updating link" : "Error creating link"}
                     </h3>
                     <div className="mt-2 text-sm text-red-700">
                       <p>{serverError}</p>
