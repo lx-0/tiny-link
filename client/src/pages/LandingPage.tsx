@@ -173,11 +173,11 @@ export default function LandingPage() {
       
       // Check for specific shortcode errors
       if (error instanceof ShortCodeError) {
-        setCustomShortCodeError("This custom path is already taken. Please choose another one.");
+        setShortCodeError("This custom path is already taken. Please choose another one.");
       } else if (error.message?.includes("Short code already in use") || 
           error.message?.includes("already taken") || 
           error.message?.includes("custom path")) {
-        setCustomShortCodeError("This custom path is already taken. Please choose another one.");
+        setShortCodeError("This custom path is already taken. Please choose another one.");
       } else {
         // For other errors, show toast
         toast({
@@ -658,6 +658,12 @@ export default function LandingPage() {
                                       setShortCodeError("");
                                       // Regenerate QR code when shortcode changes
                                       generateQRCode(`${baseUrl}/${e.target.value}`);
+                                    }}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter' && shortCode) {
+                                        e.preventDefault();
+                                        handleUpdateShortcode();
+                                      }
                                     }}
                                     className={`text-sm font-mono border-2 h-10 rounded-none focus-visible:ring-primary w-full ${shortCodeError ? "border-red-500" : ""}`}
                                     placeholder="custom-code"
