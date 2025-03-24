@@ -759,33 +759,35 @@ export default function LandingPage() {
                       <div className="space-y-4">
                         {isAuthenticated && (
                           <div className="flex flex-col space-y-4">
-                            <div className="flex items-center">
-                              <div className="whitespace-nowrap overflow-hidden text-ellipsis text-sm font-mono bg-gray-100 flex items-center h-10 px-2 rounded-l-md border-y border-l" style={{maxWidth: '40%'}}>
-                                {baseUrl}/
+                            <div className="flex flex-col">
+                              <div className="flex items-center">
+                                <div className="whitespace-nowrap overflow-hidden text-ellipsis text-sm font-mono bg-gray-100 flex items-center h-10 px-2 rounded-l-md border-y border-l" style={{maxWidth: '40%'}}>
+                                  {baseUrl}/
+                                </div>
+                                <div className="flex-grow">
+                                  <Input
+                                    id="customShortCode"
+                                    value={customShortCode}
+                                    onChange={(e) => {
+                                      setCustomShortCode(e.target.value);
+                                      setCustomShortCodeError("");
+                                    }}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter' && url) {
+                                        e.preventDefault();
+                                        handleQuickCreate();
+                                      }
+                                    }}
+                                    placeholder="custom-code (optional)"
+                                    className={`text-sm font-mono border-2 h-10 rounded-l-none focus-visible:ring-primary w-full ${customShortCodeError ? "border-red-500" : ""}`}
+                                  />
+                                </div>
                               </div>
-                              <div className="flex-grow flex flex-col">
-                                <Input
-                                  id="customShortCode"
-                                  value={customShortCode}
-                                  onChange={(e) => {
-                                    setCustomShortCode(e.target.value);
-                                    setCustomShortCodeError("");
-                                  }}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && url) {
-                                      e.preventDefault();
-                                      handleQuickCreate();
-                                    }
-                                  }}
-                                  placeholder="custom-code (optional)"
-                                  className={`text-sm font-mono border-2 h-10 rounded-l-none focus-visible:ring-primary w-full ${customShortCodeError ? "border-red-500" : ""}`}
-                                />
-                                {customShortCodeError && (
-                                  <p className="text-xs text-red-500 mt-1">
-                                    {customShortCodeError}
-                                  </p>
-                                )}
-                              </div>
+                              {customShortCodeError && (
+                                <p className="text-xs text-red-500 mt-1 w-full text-center">
+                                  {customShortCodeError}
+                                </p>
+                              )}
                             </div>
                           </div>
                         )}
