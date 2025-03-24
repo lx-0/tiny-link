@@ -2,6 +2,14 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Accept environment variables for development
+ARG VITE_SUPABASE_URL
+ARG VITE_SUPABASE_ANON_KEY
+
+# Set environment variables
+ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
+ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
+
 # Install dependencies only
 COPY package*.json ./
 RUN npm install

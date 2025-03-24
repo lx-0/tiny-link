@@ -66,7 +66,7 @@ cd tinylink
 cp .env.development.sample .env.development
 
 # Start the development environment
-docker-compose -f docker-compose.dev.yml up
+docker compose -f docker-compose.dev.yml up
 ```
 
 ### Using Docker (Production)
@@ -81,7 +81,7 @@ cp .env.production.sample .env.production
 # Edit .env.production with your secure settings
 
 # Start the production environment
-docker-compose up -d
+docker compose up -d
 ```
 
 Visit `http://localhost:5000` in your browser.
@@ -89,11 +89,13 @@ Visit `http://localhost:5000` in your browser.
 ## 📋 Requirements
 
 ### Standard Installation
+
 - Node.js 18+
 - PostgreSQL 15+
 - Modern web browser
 
 ### Docker Installation (Alternative)
+
 - Docker
 - Docker Compose
 
@@ -108,11 +110,13 @@ Visit `http://localhost:5000` in your browser.
 ## 🔍 Features in Detail
 
 ### URL Management
+
 - Create short URLs with either auto-generated or custom codes
 - Manage and organize your shortened links in one place
 - Simple API for programmatic URL creation and management
 
 ### Analytics Dashboard
+
 Track clicks, referrers, and geographical data for your links with our built-in analytics:
 
 - Total clicks over time
@@ -121,6 +125,7 @@ Track clicks, referrers, and geographical data for your links with our built-in 
 - Device & browser statistics
 
 ### User Management
+
 Create and manage user accounts with different permission levels:
 
 - Regular users can create and manage their own links
@@ -169,6 +174,7 @@ Two Docker Compose configurations are provided:
 ### Running with Docker
 
 To run the development version:
+
 ```bash
 # Copy the sample environment file first
 cp .env.development.sample .env.development
@@ -181,6 +187,7 @@ docker-compose -f docker-compose.dev.yml up
 ```
 
 For production:
+
 ```bash
 cp .env.production.sample .env.production
 nano .env.production

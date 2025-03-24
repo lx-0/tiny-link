@@ -5,3 +5,8 @@ server/public
 vite.config.ts.*
 *.tar.gz
 attached_assets/
+.notes/
+.vscode/
+.env
+.env.development
+.env.production
