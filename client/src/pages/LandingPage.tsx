@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { nanoid } from "nanoid";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, ShortCodeError } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Loader2, 
@@ -172,7 +172,9 @@ export default function LandingPage() {
       console.error(error);
       
       // Check for specific shortcode errors
-      if (error.message?.includes("Short code already in use") || 
+      if (error instanceof ShortCodeError) {
+        setShortCodeError("This custom path is already taken. Please choose another one.");
+      } else if (error.message?.includes("Short code already in use") || 
           error.message?.includes("already taken") || 
           error.message?.includes("custom path")) {
         setShortCodeError("This custom path is already taken. Please choose another one.");
@@ -290,7 +292,7 @@ export default function LandingPage() {
         // For the specific case of short code already in use
         if (responseData.message === "Short code already in use") {
           setCustomShortCodeError("This custom path is already taken. Please choose another one.");
-          throw new Error("This custom path is already taken. Please choose another one.");
+          throw new ShortCodeError("This custom path is already taken. Please choose another one.");
         }
         
         // For other errors
@@ -320,7 +322,9 @@ export default function LandingPage() {
       console.error(error);
       
       // Never show toast for shortcode errors - only display in form field
-      if (error.message?.includes("short code already") || 
+      if (error instanceof ShortCodeError) {
+        // Error is already handled by setting customShortCodeError
+      } else if (error.message?.includes("short code already") || 
           error.message?.includes("already taken") || 
           error.message?.includes("custom path")) {
         // Error is already handled by setting customShortCodeError
