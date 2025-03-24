@@ -258,13 +258,7 @@ export default function LandingPage() {
     setIsCreating(true);
 
     try {
-      if (!isAuthenticated) {
-        // Create a temporary session or require login
-        navigate(
-          "/app/login?redirect=/?url=" + encodeURIComponent(originalUrl),
-        );
-        return;
-      }
+      // If not authenticated, we'll still create a URL but without custom shortcode
 
       // Use custom shortcode if provided and valid, otherwise generate a random one
       let shortCodeToUse = "";

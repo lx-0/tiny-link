@@ -50,24 +50,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // URL routes
   app.post("/api/urls", async (req, res) => {
-    const supabaseId = req.headers["x-user-id"] as string;
-    if (!supabaseId) {
-      return res.status(401).json({ message: "Unauthorized" });
+    let { originalUrl, shortCode, isActive } = req.body;
+    let userId = -1; // Default user ID for anonymous users
+    
+    // Validate the URL format
+    if (!originalUrl.startsWith('http://') && !originalUrl.startsWith('https://')) {
+      originalUrl = `https://${originalUrl}`;
     }
-
+    
+    // Authentication check
+    const supabaseId = req.headers["x-user-id"] as string;
+    
+    if (supabaseId) {
+      try {
+        const user = await storage.getUserBySupabaseId(supabaseId);
+        if (user) {
+          userId = user.id;
+        }
+      } catch (error) {
+        console.error("Error finding user:", error);
+      }
+    }
+    
     try {
-      const user = await storage.getUserBySupabaseId(supabaseId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
+      // Custom shortcodes require authentication
+      if (shortCode && userId === -1) {
+        return res.status(401).json({ message: "Custom shortcodes require authentication" });
       }
-
-      let { originalUrl, shortCode, isActive } = req.body;
       
-      // Validate the URL format
-      if (!originalUrl.startsWith('http://') && !originalUrl.startsWith('https://')) {
-        originalUrl = `https://${originalUrl}`;
-      }
-
       // Generate short code if not provided
       if (!shortCode) {
         shortCode = nanoid(7); // Generate a 7-character unique code
@@ -82,7 +92,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const urlData = insertUrlSchema.parse({
         originalUrl,
         shortCode,
-        userId: user.id,
+        userId: userId,
         isActive: isActive !== undefined ? isActive : true,
       });
 
