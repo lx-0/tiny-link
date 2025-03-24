@@ -273,11 +273,13 @@ export default function LandingPage() {
       setShortCode(shortCodeToUse);
 
       try {
+        // Prepare request payload based on authentication status
+        const payload = isAuthenticated
+          ? { originalUrl, shortCode: shortCodeToUse }
+          : { originalUrl };
+          
         // Use apiRequest which automatically handles auth headers
-        await apiRequest("POST", "/api/urls", {
-          originalUrl,
-          shortCode: shortCodeToUse,
-        });
+        await apiRequest("POST", "/api/urls", payload);
       } catch (error: any) {
         console.error("Error creating short URL:", error);
         
@@ -294,10 +296,12 @@ export default function LandingPage() {
             const newCode = nanoid(7);
             setShortCode(newCode);
             try {
-              await apiRequest("POST", "/api/urls", {
-                originalUrl,
-                shortCode: newCode,
-              });
+              // Use the same payload logic for retries
+              const retryPayload = isAuthenticated
+                ? { originalUrl, shortCode: newCode }
+                : { originalUrl };
+                
+              await apiRequest("POST", "/api/urls", retryPayload);
               // If successful, continue with the flow
               return; // Skip the throw
             } catch (retryError) {
