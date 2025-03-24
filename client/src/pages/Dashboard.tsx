@@ -78,25 +78,35 @@ export default function Dashboard() {
         // Use apiRequest which automatically handles auth headers
         const response = await apiRequest("POST", "/api/urls", data);
         
-        // Parse the response
-        const responseData = await response.json();
-        
-        // For the specific case of short code already in use, throw a custom error
-        if (response.status === 400 && responseData.message === "Short code already in use") {
-          const error = new Error("This custom path is already taken. Please choose another one.");
-          // Add a custom property to identify this specific error
-          Object.defineProperty(error, 'isShortCodeError', { value: true });
-          throw error;
+        // For JSON responses, we need to parse and check for specific errors
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const responseData = await response.json();
+          
+          // For the specific case of short code already in use, throw a custom error
+          if (response.status === 400 && responseData.message === "Short code already in use") {
+            const error = new Error("This custom path is already taken. Please choose another one.");
+            // Add a custom property to identify this specific error
+            Object.defineProperty(error, 'isShortCodeError', { value: true });
+            throw error;
+          }
+          
+          // If response is not OK but we have a message
+          if (!response.ok && responseData.message) {
+            throw new Error(responseData.message);
+          }
+          
+          return responseData;
         }
         
-        return responseData;
+        // For non-JSON responses, just check if OK
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+        
+        return response;
       } catch (error) {
-        // If it's our custom error, re-throw it
-        if (error instanceof Error && 'isShortCodeError' in error) {
-          throw error;
-        }
-        
-        // For other errors from apiRequest, they'll be thrown automatically
+        // For our custom errors or regular errors, just re-throw
         throw error;
       }
     },
@@ -128,25 +138,35 @@ export default function Dashboard() {
         // Use apiRequest which automatically handles auth headers
         const response = await apiRequest("PUT", `/api/urls/${id}`, data);
         
-        // Parse the response
-        const responseData = await response.json();
-        
-        // For the specific case of short code already in use, throw a custom error
-        if (response.status === 400 && responseData.message === "Short code already in use") {
-          const error = new Error("This custom path is already taken. Please choose another one.");
-          // Add a custom property to identify this specific error
-          Object.defineProperty(error, 'isShortCodeError', { value: true });
-          throw error;
+        // For JSON responses, we need to parse and check for specific errors
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const responseData = await response.json();
+          
+          // For the specific case of short code already in use, throw a custom error
+          if (response.status === 400 && responseData.message === "Short code already in use") {
+            const error = new Error("This custom path is already taken. Please choose another one.");
+            // Add a custom property to identify this specific error
+            Object.defineProperty(error, 'isShortCodeError', { value: true });
+            throw error;
+          }
+          
+          // If response is not OK but we have a message
+          if (!response.ok && responseData.message) {
+            throw new Error(responseData.message);
+          }
+          
+          return responseData;
         }
         
-        return responseData;
+        // For non-JSON responses, just check if OK
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+        
+        return response;
       } catch (error) {
-        // If it's our custom error, re-throw it
-        if (error instanceof Error && 'isShortCodeError' in error) {
-          throw error;
-        }
-        
-        // For other errors from apiRequest, they'll be thrown automatically
+        // For our custom errors or regular errors, just re-throw
         throw error;
       }
     },

@@ -273,7 +273,7 @@ export default function LandingPage() {
         shortCode: shortCodeToUse,
       });
       
-      // Parse the response
+      // Parse the response and handle errors
       const responseData = await response.json();
       
       // Handle non-OK responses
@@ -287,28 +287,26 @@ export default function LandingPage() {
         // For other errors
         throw new Error(responseData.message || `Error: ${response.status}`);
       }
-
-      if (responseData) {
-        // Create the full URL
-        const origin = window.location.origin;
-        setBaseUrl(origin);
-        const fullUrl = `${origin}/${shortCodeToUse}`;
-        
-        // Update state with the new short URL
-        setShortUrl(fullUrl);
-        
-        // Generate QR code in background, don't show it yet
-        await generateQRCode(fullUrl);
-        
-        // Show result view
-        setShowResult(true);
-        
-        // Show success message
-        toast({
-          title: "URL shortened!",
-          description: "Your URL has been shortened successfully.",
-        });
-      }
+      
+      // Create the full URL
+      const origin = window.location.origin;
+      setBaseUrl(origin);
+      const fullUrl = `${origin}/${shortCodeToUse}`;
+      
+      // Update state with the new short URL
+      setShortUrl(fullUrl);
+      
+      // Generate QR code in background, don't show it yet
+      await generateQRCode(fullUrl);
+      
+      // Show result view
+      setShowResult(true);
+      
+      // Show success message
+      toast({
+        title: "URL shortened!",
+        description: "Your URL has been shortened successfully.",
+      });
     } catch (error: any) {
       console.error(error);
       
