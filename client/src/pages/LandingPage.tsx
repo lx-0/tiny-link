@@ -267,13 +267,35 @@ export default function LandingPage() {
       
       setShortCode(shortCodeToUse);
 
-      // Create the URL
-      const response = await apiRequest("POST", "/api/urls", {
-        originalUrl,
-        shortCode: shortCodeToUse,
+      // Create the URL - using fetch directly to better handle specific errors
+      const response = await fetch("/api/urls", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          originalUrl,
+          shortCode: shortCodeToUse,
+        }),
+        credentials: "include"
       });
+      
+      // Parse the response
+      const responseData = await response.json();
+      
+      // Handle non-OK responses
+      if (!response.ok) {
+        // For the specific case of short code already in use
+        if (responseData.message === "Short code already in use") {
+          setCustomShortCodeError("This custom path is already taken. Please choose another one.");
+          throw new Error("This custom path is already taken. Please choose another one.");
+        }
+        
+        // For other errors
+        throw new Error(responseData.message || `Error: ${response.status}`);
+      }
 
-      if (response) {
+      if (responseData) {
         // Create the full URL
         const origin = window.location.origin;
         setBaseUrl(origin);
@@ -294,13 +316,17 @@ export default function LandingPage() {
           description: "Your URL has been shortened successfully.",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast({
-        title: "Error",
-        description: "Failed to shorten URL. Please try again.",
-        variant: "destructive",
-      });
+      
+      // Only show toast for errors that aren't our custom short code error
+      if (!error.message?.includes("custom path is already taken")) {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to shorten URL. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsCreating(false);
     }

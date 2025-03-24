@@ -90,6 +90,11 @@ export default function LinkFormModal({
       });
     }
   }, [open, initialData, form]);
+  
+  // Check if there's a shortcode-specific error to highlight the field
+  const isShortCodeError = serverError?.toLowerCase().includes('custom path') || 
+                         serverError?.toLowerCase().includes('already taken') ||
+                         serverError?.toLowerCase().includes('short code already');
 
   const handleSubmit = (data: FormValues) => {
     // Clear any previous errors
@@ -157,7 +162,7 @@ export default function LinkFormModal({
                         {window.location.host}/
                       </span>
                       <Input 
-                        className="rounded-l-none"
+                        className={`rounded-l-none ${isShortCodeError ? "border-red-500 focus:ring-red-500" : ""}`}
                         placeholder="custom-path" 
                         {...field} 
                       />
