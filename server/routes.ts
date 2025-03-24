@@ -377,6 +377,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         shortCode === 'not-found' ||
         shortCode === 'src' ||
         shortCode === 'node_modules' ||
+        // Skip app-related routes when they appear at root level
+        shortCode === 'login' ||
+        shortCode === 'register' ||
+        shortCode === 'dashboard' ||
+        shortCode === 'about' ||
+        shortCode === 'terms' ||
+        shortCode === 'privacy' ||
         shortCode.startsWith('@') || // Skip Vite internal paths like @react-refresh
         shortCode.includes('.')) {
       return next();

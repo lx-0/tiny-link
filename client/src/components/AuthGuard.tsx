@@ -17,6 +17,10 @@ export default function AuthGuard({
   
   // Simple navigation helper using safeNavigate
   const navigate = (path: string) => {
+    // Ensure paths are properly prefixed with /app/
+    if (path === '/login' || path === '/dashboard' || path === '/register') {
+      path = `/app${path}`;
+    }
     import('@/lib/utils').then(({ safeNavigate }) => {
       safeNavigate(path);
     });
